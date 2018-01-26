@@ -1,6 +1,9 @@
 package HCHomeServer.controller;
 
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -24,8 +27,15 @@ public class PostController {
 			@RequestParam("text")String text,
 			@RequestParam("pictureCount")int pictureCount,
 			@RequestParam("userId")int userId) {
-		
-				return null;
+		Map<String, Object> data = new HashMap<>();
+		ResultData resultData = null;
+		try {
+			
+		}catch (Exception e) {
+			e.printStackTrace();
+			resultData = ResultData.build_fail_result(data, "异常", 10002);
+		}
+		return resultData;
 		
 	}
 	
