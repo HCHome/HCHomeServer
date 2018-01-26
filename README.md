@@ -4,4 +4,4 @@
 
 > ### 海潮之家服务端
 
-​	基于springmvc+mybatis框架的APP小程序服务器
+​	基于springmvc+mybatis框架的小程序服务器
