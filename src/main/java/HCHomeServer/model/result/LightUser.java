@@ -1,11 +1,13 @@
 package HCHomeServer.model.result;
 
-import org.eclipse.jdt.internal.compiler.ast.ThisReference;
 
-import HCHomeServer.model.db.PersonInfo;
 import HCHomeServer.model.db.SignRecord;
 import HCHomeServer.model.db.User;
 
+/**
+ * 返回前端的用户信息包装类
+ * @author cj
+ */
 public class LightUser {
 	private int userId;
 	private String nickname;

@@ -6,6 +6,10 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import HCHomeServer.model.result.ResultData;
 
+/**
+ * 管理测试接口的控制器
+ * @author cj
+ */
 @Controller
 public class TestController {
 

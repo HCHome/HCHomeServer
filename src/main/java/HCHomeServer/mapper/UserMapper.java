@@ -4,6 +4,10 @@ import org.apache.ibatis.annotations.Param;
 
 import HCHomeServer.model.db.User;
 
+/**
+ * 用户个人信息映射管理
+ * @author cj
+ */
 public interface UserMapper {
 
 	public User getUserByOpenId(@Param("openId")String openId);

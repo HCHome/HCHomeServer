@@ -27,11 +27,15 @@ public class UserServiceImpl implements UserService {
 	private UserApplyMapper userApplyMapper;	
 	@Autowired
 	private SignRecordMapper signRecordMapper;
+	
+	
 	@Override
 	@Transactional
 	public LightUser checkUser(String verificationCode, String openedId) {
+		//安全码检验
 		PersonInfo info = personInfoMapper.checkCode(verificationCode);
 		if(info!=null) {
+			//新增用户
 			User user = User.createUser(info, openedId);
 			userMapper.addUser(user);
 			return LightUser.buildByUser(user, null);
@@ -41,10 +45,12 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public LightUser login(String openId) {
+		//检查用户是否注册
 		User user = userMapper.getUserByOpenId(openId);
 		if(user==null) {
 			return null;
 		}
+		//检查今天是否已经签到
 		SignRecord sign = signRecordMapper.getTodaySignRecord(user.getUserId()); 
 		return LightUser.buildByUser(user,sign);
 	}
@@ -57,9 +63,11 @@ public class UserServiceImpl implements UserService {
 	@Override
 	@Transactional
 	public boolean sign(int userId) {
+		//检查今天是否已经签到
 		if(signRecordMapper.getTodaySignRecord(userId)!=null) {
 			return false;
 		}else {
+			//签到并更新积分
 			signRecordMapper.addSign(SignRecord.creatSign(userId));
 			userMapper.signScoreAdd(userId, 1);
 			return true;

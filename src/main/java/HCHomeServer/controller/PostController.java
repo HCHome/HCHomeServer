@@ -14,11 +14,24 @@ import com.mchange.v2.c3p0.impl.NewProxyCallableStatement;
 
 import HCHomeServer.cos.CosTool;
 import HCHomeServer.model.result.ResultData;
-
+/**
+ * 帖子管理接口的控制器
+ * @author cj
+ *
+ */
 @Controller
 @RequestMapping(value="/post")
 public class PostController {
 	
+	/**
+	 * 新增帖子
+	 * @param category 帖子类别，共四类，分别是潮友日常、实习工作、学习交流、求助发帖
+	 * @param title
+	 * @param text
+	 * @param pictureCount
+	 * @param userId
+	 * @return
+	 */
 	@RequestMapping("newPost")
 	@ResponseBody
 	public ResultData newPost(
@@ -40,7 +53,11 @@ public class PostController {
 	}
 	
 	
-	
+	/**
+	 * 帖子图片上传接口
+	 * @param postPicture
+	 * @return
+	 */
 	@RequestMapping("/uploadPostPicture")
 	@ResponseBody
 	public ResultData uploadPostPicture(@RequestParam("postPicture")MultipartFile postPicture) throws Exception {

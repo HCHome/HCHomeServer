@@ -8,6 +8,11 @@ import com.qcloud.cos.meta.InsertOnly;
 import com.qcloud.cos.request.UploadFileRequest;
 import com.qcloud.cos.sign.Credentials;
 
+/**
+ * 腾讯云Cos对象服务器接口封装类
+ * 使用的是4.6老版SDK
+ * @author cj
+ */
 public class CosTool {
 	final private static long appId = 1253647932;
 	final private static String secretId = "AKIDDG6kCQoIuJVTElfB3jCRVJr9JFxPOWBa";
@@ -20,7 +25,12 @@ public class CosTool {
 		clientConfig = new ClientConfig();
 		clientConfig.setRegion("gz");
 	}
-
+	/**
+	 * 文件上传接口
+	 * @param picture
+	 * @param filePath
+	 * @return
+	 */
 	public static boolean uploadPostPicture(byte[] picture, String filePath) {
 		COSClient client = new COSClient(clientConfig, cred);
 		UploadFileRequest request = new UploadFileRequest(bucketName, filePath, picture);

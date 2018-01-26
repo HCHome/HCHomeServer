@@ -18,7 +18,10 @@ import HCHomeServer.model.result.LightUser;
 import HCHomeServer.service.UserService;
 import HCHomeServer.wechat.Session;
 import HCHomeServer.wechat.WeChat;
-
+/**
+ * 用于接收关于用户个人信息请求并分发的控制器
+ * @author cj
+ */
 @Controller
 @RequestMapping(value="/user")//,method=RequestMethod.POST)
 public class UserController {
@@ -28,7 +31,14 @@ public class UserController {
 	
 	Logger logger = Logger.getLogger(getClass());
 	
-	@SuppressWarnings({ "unchecked", "finally" })
+	/**
+	 * 登录接口，用户打开小程序且授权后所调用的接口
+	 * 检查用户是否已经注册，并向微信服务器注册会话
+	 * @param jsCode 
+	 * @param request
+	 * @return ResutData
+	 */
+	@SuppressWarnings({"finally" })
 	@RequestMapping("/login")
 	@ResponseBody
 	public ResultData login(
@@ -39,15 +49,16 @@ public class UserController {
 		HttpSession httpSession = request.getSession();
 //		ServletContext application = httpSession.getServletContext();
 		try {
+			//向微信服务器申请会话
 			Session session = WeChat.getSession(jsCode);
-			//jscode
+			//检查会话申请情况
 			if(session==null) {
 				resultData = ResultData.build_fail_result(data, "jsCode不正确", 10004);
 			}else {
 				LightUser user = userService.login(session.getOpenId());
+				//将微信会话存进session
 				httpSession.setAttribute("wechat_session", session);
-				System.out.println(user);
-				//
+				//检查用户是否已经注册
 				if(user == null) {
 //					Map<String, Session>tempSessionMap = (ConcurrentHashMap<String, Session>) application.getAttribute("tempSessionMap");
 //					if(tempSessionMap==null) {
@@ -71,7 +82,14 @@ public class UserController {
 			return resultData;
 		}
 	}
-	
+	/**
+	 * 持有检验码的用户的注册接口
+	 * 暂未实现重试次数限制
+	 * @param emmCode 自定义密钥
+	 * @param verificationCode 安全码
+	 * @param request
+	 * @return
+	 */
 	@SuppressWarnings("finally")
 	@RequestMapping("/register")
 	@ResponseBody
@@ -84,11 +102,13 @@ public class UserController {
 		ResultData resultData = null;
 		try {
 			Session session = (Session)httpSession.getAttribute("wechat_session");
+			//检查是否已经向微信服务器申请会话
 			if(session==null) {
 				resultData = ResultData.build_fail_result(data, "与微信会话断开中", 10004);
 			}else {
 				
 				LightUser user = userService.checkUser(verificationCode, session.getOpenId());
+				//检查检验码是否正确
 				if(user != null) {
 					data.put("user", user);
 					resultData = ResultData.build_success_result(data);
@@ -103,6 +123,14 @@ public class UserController {
 			return resultData;
 		}
 	}
+	/**
+	 * 未持有安全码用户申请帐号接口，需要管理员审核
+	 * @param term 届别
+	 * @param name 姓名
+	 * @param message 备注内容
+	 * @param request
+	 * @return
+	 */
 	@SuppressWarnings("finally")
 	@RequestMapping("/apply")
 	@ResponseBody
@@ -116,6 +144,7 @@ public class UserController {
 		ResultData resultData = null;
 		try {
 			Session session = (Session)httpSession.getAttribute("wechat_session");
+			//检查是否已经向微信服务器申请会话
 			if(session==null) {
 				resultData = ResultData.build_fail_result(data, "与微信会话断开中", 10004);
 			}else {
@@ -130,7 +159,11 @@ public class UserController {
 			return resultData;
 		}
 	}
-	
+	/**
+	 * 签到接口
+	 * @param userId
+	 * @return
+	 */
 	@SuppressWarnings("finally")
 	@RequestMapping(value="sign")
 	@ResponseBody
@@ -140,6 +173,7 @@ public class UserController {
 		ResultData resultData = null;
 		try {
 			boolean result = userService.sign(userId);
+			//检查是否已经签到过了
 			if(result) {
 				resultData = ResultData.build_success_result(data);
 			}else {
