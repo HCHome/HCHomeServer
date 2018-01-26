@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+    xmlns:p="http://www.springframework.org/schema/p"
+    xmlns:context="http://www.springframework.org/schema/context" 
+    xmlns:tx="http://www.springframework.org/schema/tx"
+    xmlns:mvc="http://www.springframework.org/schema/mvc"
+    xmlns:mybatis="http://mybatis.org/schema/mybatis-spring"
+    xsi:schemaLocation="
+          http://www.springframework.org/schema/beans
+          http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+          http://www.springframework.org/schema/context
+          http://www.springframework.org/schema/context/spring-context-4.3.xsd
+          http://www.springframework.org/schema/mvc
+          http://www.springframework.org/schema/mvc/spring-mvc-4.3.xsd
+          http://www.springframework.org/schema/tx
+          http://www.springframework.org/schema/tx/spring-tx-4.3.xsd
+          http://mybatis.org/schema/mybatis-spring
+          http://mybatis.org/schema/mybatis-spring.xsd">
+    <!-- 自动扫描mapper接口，并配置
+	<mybatis:scan base-package="HCHomeServer.mapper"/>
+	-->
+	<!-- 自动扫描spring注解类，并注册为bean -->
+	<context:component-scan base-package="HCHomeServer.*"/>
+	
+    
+	<!-- 配置数据源 -->
+	<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">
+		<property name="driverClass" value="com.mysql.jdbc.Driver"></property>
+		<property name="jdbcUrl" value="jdbc:mysql://119.29.189.146:3306/HC_server?useUnicode=true&amp;characterEncoding=UTF-8&amp;useSSL=false"></property>
+		<property name="user" value="cj"></property>
+		<property name="password" value="cj_lin"></property>
+		<property name="acquireIncrement" value="3"></property>
+		<property name="maxPoolSize" value="9"></property>
+		<property name="minPoolSize" value="3"></property>
+		<property name="maxIdleTime" value="3600"></property>
+		<property name="initialPoolSize" value="3"></property>
+	</bean>
+	
+	<!-- MyBatis 的 SqlSession 的工厂，并引用数据源，扫描 MyBatis 的配置文件 -->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dataSource"></property>
+        <property name="configLocation" value="/WEB-INF/mybatis-config.xml" />
+    </bean>
+    <!-- MyBatis 自动扫描加载 Sql 映射文件/接口 -->    
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="HCHomeServer.mapper"></property>
+        <property name="sqlSessionFactory" ref="sqlSessionFactory"></property>
+    </bean>
+     <!-- JDBC 事务管理器 -->
+    <bean id="txManager"
+        class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"></property>
+    </bean>
+    <!-- 启用支持 annotation 注解方式事务管理 -->
+    <tx:annotation-driven transaction-manager="txManager" />
+</beans>

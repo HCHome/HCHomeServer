@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="HCHomeServer.mapper.UserApplyMapper">
+	
+	<insert id="addUserApply" parameterType="HCHomeServer.model.db.UserApply" useGeneratedKeys="true" keyProperty="applyId">
+		insert into user_applies(term,name,apply_message,created_at,wechat_identify)
+		values (#{term},#{name},#{message},#{createdDate},#{wechatIdentify})
+	</insert>
+</mapper>

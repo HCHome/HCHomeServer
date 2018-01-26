@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="HCHomeServer.mapper.SignRecordMapper">
+	<resultMap type="HCHomeServer.model.db.SignRecord" id="signRecordMap">
+		<id property="signId" column="sign_id"/>
+		<result property="userId" column="user_id"/>
+		<result property="signDate" column="created_at"/>
+	</resultMap>
+	<select id="getTodaySignRecord" parameterType="int" resultMap="signRecordMap">
+		select *
+		from sign_record
+		where user_id=#{userId} and year(now()) = year(created_at) and month(now()) = month(created_at) and day(now()) = day(created_at)
+	</select>
+	<insert id="addSign" parameterType="HCHomeServer.model.db.SignRecord" useGeneratedKeys="true" keyProperty="signId">
+		insert into sign_record(user_id, created_at)
+			values(#{userId},#{signDate})
+	</insert>
+</mapper>
