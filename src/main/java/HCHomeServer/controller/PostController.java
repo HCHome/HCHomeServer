@@ -4,6 +4,7 @@ package HCHomeServer.controller;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -13,7 +14,9 @@ import org.springframework.web.multipart.MultipartFile;
 import com.mchange.v2.c3p0.impl.NewProxyCallableStatement;
 
 import HCHomeServer.cos.CosTool;
+import HCHomeServer.model.db.Post;
 import HCHomeServer.model.result.ResultData;
+import HCHomeServer.service.PostServer;
 /**
  * 帖子管理接口的控制器
  * @author cj
@@ -22,6 +25,9 @@ import HCHomeServer.model.result.ResultData;
 @Controller
 @RequestMapping(value="/post")
 public class PostController {
+	
+	@Autowired
+	private PostServer postServer;
 	
 	/**
 	 * 新增帖子
@@ -35,7 +41,7 @@ public class PostController {
 	@RequestMapping("newPost")
 	@ResponseBody
 	public ResultData newPost(
-			@RequestParam("category")int category,
+			@RequestParam("category")String category,
 			@RequestParam("title")String title,
 			@RequestParam("text")String text,
 			@RequestParam("pictureCount")int pictureCount,
@@ -43,13 +49,16 @@ public class PostController {
 		Map<String, Object> data = new HashMap<>();
 		ResultData resultData = null;
 		try {
-			
+			Post post = Post.creatPost(category, title, text, pictureCount, userId);
+			postServer.addPost(post);
+			data.put("postInfo", post);
+			resultData = ResultData.build_success_result(data);
+			return resultData;
 		}catch (Exception e) {
 			e.printStackTrace();
 			resultData = ResultData.build_fail_result(data, "异常", 10002);
+			return resultData;
 		}
-		return resultData;
-		
 	}
 	
 	
