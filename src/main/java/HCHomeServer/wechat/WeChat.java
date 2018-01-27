@@ -32,6 +32,6 @@ public class WeChat {
 	}
 
 	public static String getUnionKey(String jsCode) {
-		return String.valueOf((new Date()).getTime());
+		return String.valueOf((new Date()).getTime()).concat(String.valueOf(jsCode.hashCode()));
 	}
 }

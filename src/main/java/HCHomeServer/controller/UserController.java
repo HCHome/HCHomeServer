@@ -2,7 +2,9 @@ package HCHomeServer.controller;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
+import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
@@ -38,16 +40,16 @@ public class UserController {
 	 * @param request
 	 * @return ResutData
 	 */
-	@SuppressWarnings({"finally" })
+	@SuppressWarnings({"finally", "unchecked" })
 	@RequestMapping("/login")
 	@ResponseBody
 	public ResultData login(
 			@RequestParam("jsCode")String jsCode,
-			HttpServletRequest request) {
+			HttpSession httpSession) {
 		Map<String, Object> data = new HashMap<>();
 		ResultData resultData=null;
-		HttpSession httpSession = request.getSession();
-//		ServletContext application = httpSession.getServletContext();
+//		HttpSession httpSession = request.getSession();
+		ServletContext application = httpSession.getServletContext();
 		try {
 			//向微信服务器申请会话
 			Session session = WeChat.getSession(jsCode);
@@ -56,21 +58,24 @@ public class UserController {
 				resultData = ResultData.build_fail_result(data, "jsCode不正确", 10004);
 			}else {
 				LightUser user = userService.login(session.getOpenId());
-				//将微信会话存进session
-				httpSession.setAttribute("wechat_session", session);
+//				//将微信会话存进session
+//				httpSession.setAttribute("wechat_session", session);
 				//检查用户是否已经注册
 				if(user == null) {
-//					Map<String, Session>tempSessionMap = (ConcurrentHashMap<String, Session>) application.getAttribute("tempSessionMap");
-//					if(tempSessionMap==null) {
-//						tempSessionMap = new ConcurrentHashMap<>();
-//					}
+					Map<String, Session> tempSessionMap = (ConcurrentHashMap<String, Session>) application.getAttribute("tempSessionMap");
+					if(tempSessionMap==null) {
+						tempSessionMap = new ConcurrentHashMap<>();
+					}
 					String key = WeChat.getUnionKey(jsCode);
-					
+					tempSessionMap.put(key, session);
+					application.setAttribute("tempSessionMap", tempSessionMap);
 					data.put("emmCode", key);
 					resultData = ResultData.build_fail_result(data, "用户不存在", 10003);
 				}else {
-//					Map<String, Session>userSessionMap = (ConcurrentHashMap<String, Session>) application.getAttribute("userSessionMap");
-//					userSessionMap.put(String.valueOf(user.getUserId()), session);
+					Map<String, Session>userSessionMap = (ConcurrentHashMap<String, Session>) application.getAttribute("userSessionMap");
+					if(userSessionMap==null)userSessionMap = new ConcurrentHashMap<>();
+					userSessionMap.put(String.valueOf(user.getUserId()), session);
+					application.setAttribute("userSessionMap", userSessionMap);
 					data.put("user", user);
 					resultData = ResultData.build_success_result(data);
 				}
@@ -90,30 +95,34 @@ public class UserController {
 	 * @param request
 	 * @return
 	 */
-	@SuppressWarnings("finally")
+	@SuppressWarnings({ "finally", "unchecked" })
 	@RequestMapping("/register")
 	@ResponseBody
 	public ResultData register(
 			@RequestParam("emmCode")String emmCode,
 			@RequestParam("verificationCode")String verificationCode,
-			HttpServletRequest request) {
-		HttpSession httpSession =request.getSession();
+			HttpSession httpSession) {
+		ServletContext application = httpSession.getServletContext();
 		Map<String, Object> data = new HashMap<>();
 		ResultData resultData = null;
 		try {
-			Session session = (Session)httpSession.getAttribute("wechat_session");
+			Map<String, Session>tempSessionMap = (ConcurrentHashMap<String, Session>)application.getAttribute("tempSessionMap");
 			//检查是否已经向微信服务器申请会话
-			if(session==null) {
+			if(tempSessionMap==null) {
 				resultData = ResultData.build_fail_result(data, "与微信会话断开中", 10004);
 			}else {
-				
-				LightUser user = userService.checkUser(verificationCode, session.getOpenId());
-				//检查检验码是否正确
-				if(user != null) {
-					data.put("user", user);
-					resultData = ResultData.build_success_result(data);
-				}else {
-					resultData = ResultData.build_fail_result(data, "验证码不存在", 10003);
+				Session session = tempSessionMap.get(emmCode);
+				if(session == null) {
+					resultData = ResultData.build_fail_result(data, "与微信会话断开中", 10004);
+				}else{
+					LightUser user = userService.checkUser(verificationCode, session.getOpenId());
+					//检查检验码是否正确
+					if(user != null) {
+						data.put("user", user);
+						resultData = ResultData.build_success_result(data);
+					}else {
+						resultData = ResultData.build_fail_result(data, "验证码不存在", 10003);
+					}
 				}
 			}
 		}catch (Exception e) {
@@ -131,26 +140,32 @@ public class UserController {
 	 * @param request
 	 * @return
 	 */
-	@SuppressWarnings("finally")
+	@SuppressWarnings({ "finally", "unchecked" })
 	@RequestMapping("/apply")
 	@ResponseBody
 	public ResultData apply(
 			@RequestParam("term")int term,
 			@RequestParam("name")String name,
 			@RequestParam("message")String message,
-			HttpServletRequest request){
-		HttpSession httpSession = request.getSession();
+			@RequestParam("emmCode")String emmCode,
+			HttpSession httpSession){
+		ServletContext application = httpSession.getServletContext();
 		Map<String, Object> data = new HashMap<>();
 		ResultData resultData = null;
 		try {
-			Session session = (Session)httpSession.getAttribute("wechat_session");
+			Map<String, Session>tempSessionMap = (ConcurrentHashMap<String, Session>)application.getAttribute("tempSessionMap");
 			//检查是否已经向微信服务器申请会话
-			if(session==null) {
+			if(tempSessionMap==null) {
 				resultData = ResultData.build_fail_result(data, "与微信会话断开中", 10004);
 			}else {
-				UserApply userApply = new UserApply(term, name, message, session.getOpenId());
-				userService.addUserApply(userApply);
-				resultData = ResultData.build_success_result(data);
+				Session session = tempSessionMap.get(emmCode);
+				if(session == null) {
+					resultData = ResultData.build_fail_result(data, "与微信会话断开中", 10004);
+				}else{
+					UserApply userApply = new UserApply(term, name, message, session.getOpenId());
+					userService.addUserApply(userApply);
+					resultData = ResultData.build_success_result(data);
+				}
 			}
 		}catch (Exception e) {
 			e.printStackTrace();
@@ -178,6 +193,36 @@ public class UserController {
 				resultData = ResultData.build_success_result(data);
 			}else {
 				resultData = ResultData.build_fail_result(data, "今日已签到", 10006);
+			}
+		}catch (Exception e) {
+			e.printStackTrace();
+			resultData = ResultData.build_fail_result(data, "异常", 10002);
+		}finally{
+			return resultData;
+		}
+	}
+	/**
+	 * 注销接口，用于清除application中保存的数据
+	 * @param userId
+	 * @param httpSession
+	 * @return
+	 */
+	@SuppressWarnings({ "unchecked", "finally" })
+	@RequestMapping(value="/logout")
+	@ResponseBody
+	public ResultData logout(
+			@RequestParam("userId")String userId,
+			HttpSession httpSession) {
+		ServletContext application = httpSession.getServletContext();
+		Map<String, Object> data = new HashMap<>();
+		ResultData resultData = null;
+		try {
+			Map<String, Session>userSessionMap = (ConcurrentHashMap<String, Session>)application.getAttribute("userSessionMap");
+			if(userSessionMap==null) {
+				resultData = ResultData.build_success_result(data);
+			}else {
+				if(userSessionMap.containsKey("userId"))userSessionMap.remove(userId);
+				resultData = ResultData.build_success_result(data);
 			}
 		}catch (Exception e) {
 			e.printStackTrace();
