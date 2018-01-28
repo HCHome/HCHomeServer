@@ -14,6 +14,7 @@ import HCHomeServer.model.db.SignRecord;
 import HCHomeServer.model.db.User;
 import HCHomeServer.model.db.UserApply;
 import HCHomeServer.model.result.LightUser;
+import HCHomeServer.model.result.LightUserApply;
 import HCHomeServer.service.UserService;
 
 @Service
@@ -77,6 +78,12 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public void updateAvatar(int userId, String avatar) {
 		userMapper.updateAvatar(userId, avatar);
+		
+	}
+
+	@Override
+	public LightUserApply checkApply(String openId) {
+		return userApplyMapper.checkApply(openId);
 		
 	}
 

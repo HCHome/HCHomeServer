@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import HCHomeServer.model.result.ResultData;
 import HCHomeServer.model.db.UserApply;
 import HCHomeServer.model.result.LightUser;
+import HCHomeServer.model.result.LightUserApply;
 import HCHomeServer.service.UserService;
 import HCHomeServer.wechat.Session;
 import HCHomeServer.wechat.WeChat;
@@ -62,15 +63,21 @@ public class UserController {
 //				httpSession.setAttribute("wechat_session", session);
 				//检查用户是否已经注册
 				if(user == null) {
-					Map<String, Session> tempSessionMap = (ConcurrentHashMap<String, Session>) application.getAttribute("tempSessionMap");
-					if(tempSessionMap==null) {
-						tempSessionMap = new ConcurrentHashMap<>();
+					LightUserApply userApply = userService.checkApply(session.getOpenId());
+					if(userApply == null) {
+						Map<String, Session> tempSessionMap = (ConcurrentHashMap<String, Session>) application.getAttribute("tempSessionMap");
+						if(tempSessionMap==null) {
+							tempSessionMap = new ConcurrentHashMap<>();
+						}
+						String key = WeChat.getUnionKey(jsCode);
+						tempSessionMap.put(key, session);
+						application.setAttribute("tempSessionMap", tempSessionMap);
+						data.put("emmCode", key);
+						resultData = ResultData.build_fail_result(data, "用户不存在", 10003);
+					}else {
+						data.put("userApply", userApply);
+						resultData = ResultData.build_fail_result(data, "申请信息审核中", 10006);
 					}
-					String key = WeChat.getUnionKey(jsCode);
-					tempSessionMap.put(key, session);
-					application.setAttribute("tempSessionMap", tempSessionMap);
-					data.put("emmCode", key);
-					resultData = ResultData.build_fail_result(data, "用户不存在", 10003);
 				}else {
 					Map<String, Session>userSessionMap = (ConcurrentHashMap<String, Session>) application.getAttribute("userSessionMap");
 					if(userSessionMap==null)userSessionMap = new ConcurrentHashMap<>();

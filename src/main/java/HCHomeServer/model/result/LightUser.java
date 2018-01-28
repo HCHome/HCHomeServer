@@ -1,6 +1,8 @@
 package HCHomeServer.model.result;
 
 
+import java.io.Serializable;
+
 import HCHomeServer.model.db.SignRecord;
 import HCHomeServer.model.db.User;
 
@@ -8,7 +10,9 @@ import HCHomeServer.model.db.User;
  * 返回前端的用户信息包装类
  * @author cj
  */
-public class LightUser {
+public class LightUser implements Serializable{
+
+	private static final long serialVersionUID = 8862880821556043645L;
 	private int userId;
 	private String nickname;
 	private int signScore;
