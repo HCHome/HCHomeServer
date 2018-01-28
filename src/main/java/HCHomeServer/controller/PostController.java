@@ -84,7 +84,24 @@ public class PostController {
 			e.printStackTrace();
 			resultData = ResultData.build_fail_result(data, "异常", 10002);
 			return resultData;
-		}
-		
+		}	
 	}
+	
+	@RequestMapping("deletePost")
+	@ResponseBody
+	public ResultData deletePost(
+			@RequestParam("userId")int userId,
+			@RequestParam("postId")int postId) {
+		Map<String, Object> data = new HashMap<>();
+		ResultData resultData = null;
+		try {
+			
+			return resultData;
+		}catch (Exception e) {
+			e.printStackTrace();
+			resultData = ResultData.build_fail_result(data, "异常", 10002);
+			return resultData;
+		}	
+	}
+	
 }

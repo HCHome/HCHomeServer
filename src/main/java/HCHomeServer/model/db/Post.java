@@ -12,6 +12,7 @@ public class Post {
 	private int pictureCount;
 	private Date createdDate;
 	private Date lastUpdate;
+	private int currentFloor;
 	public int getPostId() {
 		return postId;
 	}
@@ -76,7 +77,14 @@ public class Post {
 		post.setText(text);
 		post.setTitle(title);
 		post.setUserId(userId);
+		post.setCurrentFloor(0);
 		return post;
+	}
+	public int getCurrentFloor() {
+		return currentFloor;
+	}
+	public void setCurrentFloor(int currentFloor) {
+		this.currentFloor = currentFloor;
 	}
 	
 }
