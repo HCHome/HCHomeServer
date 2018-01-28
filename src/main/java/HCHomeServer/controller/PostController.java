@@ -95,7 +95,7 @@ public class PostController {
 		Map<String, Object> data = new HashMap<>();
 		ResultData resultData = null;
 		try {
-			
+			postService.deletePost(userId, postId);
 			return resultData;
 		}catch (Exception e) {
 			e.printStackTrace();

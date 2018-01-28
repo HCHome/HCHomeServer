@@ -6,4 +6,13 @@
 		insert into post_pictures(url, post_id, `order`)
 		values(#{url},#{postId},#{order})
 	</insert>
+	<delete id="deletePictureByPostId" parameterType="int">
+		delete from post_pictures 
+		where post_id=#{postId} and picture_id>0
+	</delete>
+	<select id="getPictureUrlArrayByPostId" parameterType="int">
+		select url
+		from post_pictures
+		where post_id=#{postId} and picture_id>0
+	</select>
 </mapper>

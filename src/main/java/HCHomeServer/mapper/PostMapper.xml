@@ -6,4 +6,8 @@
 		insert into posts(user_id, category, title, text, is_top, picture_count, created_at, updated_at,current_floor)
 		values(#{userId}, #{category},#{title},#{text},#{isTop},#{pictureCount},#{createdDate},#{lastUpdate}.#{currentFloor})
 	</insert>
+	<delete id="deletePostByPostId" parameterType="int">
+		delete from posts
+		where post_id=#{postId}
+	</delete>
 </mapper>

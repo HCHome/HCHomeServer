@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.qcloud.cos.COSClient;
 import com.qcloud.cos.ClientConfig;
 import com.qcloud.cos.meta.InsertOnly;
+import com.qcloud.cos.request.DelFileRequest;
 import com.qcloud.cos.request.UploadFileRequest;
 import com.qcloud.cos.sign.Credentials;
 
@@ -48,4 +49,18 @@ public class CosTool {
 			return false;
 		}
  	}
+	
+	public static boolean deleteFoodPicture(String fileName) {
+		COSClient client = new COSClient(clientConfig, cred);
+		DelFileRequest request = new DelFileRequest(bucketName, fileName);
+		String delFileRet = client.delFile(request);
+		JSONObject res = JSONObject.parseObject(delFileRet);
+		client.shutdown();
+		if(res.getIntValue("code")==0) {
+			return true;
+		}else {
+			System.out.println(delFileRet);
+			return false;
+		}
+	}
 }

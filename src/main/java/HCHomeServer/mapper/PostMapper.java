@@ -6,4 +6,6 @@ public interface PostMapper {
 
 	public void addPost(Post post);
 
+	public void deletePostByPostId(int postId);
+
 }

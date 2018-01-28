@@ -11,4 +11,6 @@ public interface PostService {
 
 	public PostPicture addPostPicture(MultipartFile postPictureEntity, int postId, int order) throws Exception;
 
+	public void deletePost(int userId, int postId);
+
 }

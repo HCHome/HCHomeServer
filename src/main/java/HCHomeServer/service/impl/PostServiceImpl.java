@@ -1,6 +1,9 @@
 package HCHomeServer.service.impl;
 
 
+import java.util.Iterator;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,6 +45,25 @@ public class PostServiceImpl implements PostService {
 		CosTool.uploadPostPicture(postPictureEntity.getBytes(), fileName);
 		
 		return postPicture;
+	}
+	/**
+	 * 未完成，未删除回复, 未删除云端相片
+	 */
+	@Override
+	public void deletePost(int userId, int postId) {
+		//postReplyMapper.deletePostReplyByPostId(postId);
+		List<String> urlList = postPictureMapper.getPictureUrlArrayByPostId(postId);
+		postPictureMapper.deletePictureByPostId(postId);
+		postMapper.deletePostByPostId(postId);
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				Iterator<String>iterator = urlList.iterator();
+				while(iterator.hasNext()) {
+					CosTool.deleteFoodPicture(iterator.next().replaceFirst(CosTool.COS_BASE_URL, ""));
+				}
+			}
+		}).run();
 	}
 
 }
