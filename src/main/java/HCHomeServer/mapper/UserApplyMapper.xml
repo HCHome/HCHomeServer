@@ -4,7 +4,7 @@
 <mapper namespace="HCHomeServer.mapper.UserApplyMapper">
 	
 	<insert id="addUserApply" parameterType="HCHomeServer.model.db.UserApply" useGeneratedKeys="true" keyProperty="applyId">
-		insert into user_applies(term,name,apply_message,created_at,wechat_identify)
-		values (#{term},#{name},#{message},#{createdDate},#{wechatIdentify})
+		insert into user_applies(term,name,apply_message,created_at,wechat_identify,avatar)
+		values (#{term},#{name},#{message},#{createdDate},#{wechatIdentify},#{avatar})
 	</insert>
 </mapper>

@@ -8,6 +8,7 @@
 		<result property="signScore" column="sign_score"/>
 		<result property="infoId" column="info_id"/>
 		<result property="wechatIdentify" column="wechat_identify"/>
+		<result property="avatar" column="avatar"/>
 	</resultMap>
 	<select id="getUserByOpenId" parameterType="String" resultMap="userMap">
 		select *
@@ -15,11 +16,15 @@
 		where wechat_identify = #{openId}
 	</select>
 	<insert id="addUser" parameterType="HCHomeServer.model.db.User" useGeneratedKeys="true" keyProperty="userId">
-		insert into users(info_id, nickname, sign_score, wechat_identify) values
-		(#{infoId},#{nickname},#{signScore},#{wechatIdentify})
+		insert into users(info_id, nickname, sign_score, wechat_identify, avatar) values
+		(#{infoId},#{nickname},#{signScore},#{wechatIdentify},#{avatar})
 	</insert>
 	<update id="signScoreAdd">
 		update users set sign_score = #{score}+(select sign_score from (select sign_score from users where user_id = #{userId})as temp)
 		where user_id = #{userId}
+	</update>
+	<update id="updateAvatar">
+		update users set avatar = #{avatar}
+		where user_id=#{userId}
 	</update>
 </mapper>

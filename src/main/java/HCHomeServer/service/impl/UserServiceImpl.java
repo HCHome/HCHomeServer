@@ -31,12 +31,12 @@ public class UserServiceImpl implements UserService {
 	
 	@Override
 	@Transactional
-	public LightUser checkUser(String verificationCode, String openedId) {
+	public LightUser checkUser(String verificationCode, String openedId, String avatar) {
 		//安全码检验
 		PersonInfo info = personInfoMapper.checkCode(verificationCode);
 		if(info!=null) {
 			//新增用户
-			User user = User.createUser(info, openedId);
+			User user = User.createUser(info, openedId, avatar);
 			userMapper.addUser(user);
 			return LightUser.buildByUser(user, null);
 		}
@@ -72,6 +72,12 @@ public class UserServiceImpl implements UserService {
 			userMapper.signScoreAdd(userId, 1);
 			return true;
 		}
+	}
+
+	@Override
+	public void updateAvatar(int userId, String avatar) {
+		userMapper.updateAvatar(userId, avatar);
+		
 	}
 
 }

@@ -5,25 +5,27 @@ import java.util.Date;
 public class UserApply {
 	private int applyId;
 	private int term;
+	private String avatar;
+	private String name;
+	private String message;
+	private Date createdDate;
+	private String wechatIdentify;
+	public UserApply(int term, String name, String message, String openId, String avatar) {
+		this.term = term;
+		this.name = name;
+		this.message = message;
+		this.wechatIdentify = openId;
+		this.avatar = avatar;
+		this.createdDate = new Date();
+	}
+	public int getApplyId() {
+		return applyId;
+	}
 	public Date getCreatedDate() {
 		return createdDate;
 	}
 	public void setCreatedDate(Date createdDate) {
 		this.createdDate = createdDate;
-	}
-	private String name;
-	private String message;
-	private Date createdDate;
-	private String wechatIdentify;
-	public UserApply(int term, String name, String message, String openId) {
-		this.term = term;
-		this.name = name;
-		this.message = message;
-		this.wechatIdentify = openId;
-		this.createdDate = new Date();
-	}
-	public int getApplyId() {
-		return applyId;
 	}
 	public void setApplyId(int applyId) {
 		this.applyId = applyId;
@@ -51,6 +53,12 @@ public class UserApply {
 	}
 	public void setWechatIdentify(String wechatIdentify) {
 		this.wechatIdentify = wechatIdentify;
+	}
+	public String getAvatar() {
+		return avatar;
+	}
+	public void setAvatar(String avatar) {
+		this.avatar = avatar;
 	}
 	
 }

@@ -6,8 +6,18 @@ public class User {
 	private int signScore;
 	private int infoId;
 	private String wechatIdentify;
+	private String avatar;
 	public int getUserId() {
 		return userId;
+	}
+	public String getAvatar() {
+		return avatar;
+	}
+	public void setAvatar(String avatar) {
+		this.avatar = avatar;
+	}
+	public void setWechatIdentify(String wechatIdentify) {
+		this.wechatIdentify = wechatIdentify;
 	}
 	public void setUserId(int userId) {
 		this.userId = userId;
@@ -39,12 +49,13 @@ public class User {
 
 	private User() {
 	}
-	public static User createUser(PersonInfo info, String openedId) {
+	public static User createUser(PersonInfo info, String openedId, String avatar) {
 		User user = new User();
 		user.setInfoId(info.getInfoId());
 		user.setNickname(info.getName());
 		user.setSignScore(0);
 		user.setWechatIndentify(openedId);
+		user.setAvatar(avatar);
 		return user;
 	}
 }

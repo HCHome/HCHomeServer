@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="HCHomeServer.mapper.PostMapper">
+	<insert id="addPost" parameterType="HCHomeServer.model.db.Post" useGeneratedKeys="true" keyProperty="postId">
+		insert into posts(user_id, category, title, text, is_top, picture_count, created_at, updated_at)
+		values(#{userId}, #{category},#{title},#{text},#{isTop},#{pictureCount},#{createdDate},#{lastUpdate})
+	</insert>
+</mapper>

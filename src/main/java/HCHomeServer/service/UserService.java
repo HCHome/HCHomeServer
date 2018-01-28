@@ -9,12 +9,14 @@ import HCHomeServer.model.result.LightUser;
  */
 public interface UserService {
 
-	public LightUser checkUser(String verificationCode, String openedId);
+	public LightUser checkUser(String verificationCode, String openedId, String avatar);
 
 	public LightUser login(String openId);
 
 	public void addUserApply(UserApply userApply);
 
 	public boolean sign(int userId);
+
+	public void updateAvatar(int userId, String avatar);
 
 }

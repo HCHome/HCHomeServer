@@ -13,5 +13,6 @@ public interface UserMapper {
 	public User getUserByOpenId(@Param("openId")String openId);
 	public void addUser(User user);
 	public void signScoreAdd(@Param("userId")int userId, @Param("score")int score);
+	public void updateAvatar(@Param("userId")int userId, @Param("avatar")String avatar);
 	
 }

@@ -13,6 +13,13 @@ public class LightUser {
 	private String nickname;
 	private int signScore;
 	private boolean isSign;
+	private String avatar;
+	public String getAvatar() {
+		return avatar;
+	}
+	public void setAvatar(String avatar) {
+		this.avatar = avatar;
+	}
 	public int getUserId() {
 		return userId;
 	}
@@ -43,6 +50,7 @@ public class LightUser {
 		lightUser.setNickname(user.getNickname());
 		lightUser.setSignScore(user.getSignScore());
 		lightUser.setUserId(user.getUserId());
+		lightUser.setAvatar(user.getAvatar());
 		if(sign==null) {
 			lightUser.setSign(false);
 		}else {

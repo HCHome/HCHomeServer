@@ -5,7 +5,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.oracle.webservices.internal.api.databinding.Databinding.Builder;
 
 /**
  * 返回前端的数据格式包装类，便于构造返回信息
@@ -24,7 +23,7 @@ public class ResultData implements Serializable{
 	public static ResultData build_success_result(Map<String, Object> data) {
 		ResultData resultData = new ResultData();
 		resultData.setData(data);
-		resultData.setMsg("�ɹ�");
+		resultData.setMsg("成功");
 		resultData.setStatus(10001);
 		resultData.setDate(new Date());
 		return resultData;

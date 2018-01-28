@@ -18,6 +18,7 @@ public class CosTool {
 	final private static String secretId = "AKIDDG6kCQoIuJVTElfB3jCRVJr9JFxPOWBa";
 	final private static String secretKey = "GH2XmlX6RXO1PYT9amkUzGI5ey3ua3II";
 	final private static String bucketName = "hc";
+	final public static String COS_BASE_URL = "https://hc-1253647932.cosgz.myqcloud.com";
 	private static Credentials cred;
 	private static ClientConfig clientConfig;
 	static {

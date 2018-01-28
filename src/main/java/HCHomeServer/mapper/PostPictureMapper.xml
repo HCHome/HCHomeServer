@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="HCHomeServer.mapper.PostPictureMapper">
+	<insert id="addPostPicture" parameterType="HCHomeServer.model.db.PostPicture" useGeneratedKeys="true" keyProperty="pictureId">
+		insert into post_pictures(url, post_id, `order`)
+		values(#{url},#{postId},#{order})
+	</insert>
+</mapper>

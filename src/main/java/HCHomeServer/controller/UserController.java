@@ -5,7 +5,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.servlet.ServletContext;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
@@ -40,11 +39,12 @@ public class UserController {
 	 * @param request
 	 * @return ResutData
 	 */
-	@SuppressWarnings({"finally", "unchecked" })
+	@SuppressWarnings({"unchecked" })
 	@RequestMapping("/login")
 	@ResponseBody
 	public ResultData login(
 			@RequestParam("jsCode")String jsCode,
+			@RequestParam("avatar")String avatar,
 			HttpSession httpSession) {
 		Map<String, Object> data = new HashMap<>();
 		ResultData resultData=null;
@@ -76,14 +76,23 @@ public class UserController {
 					if(userSessionMap==null)userSessionMap = new ConcurrentHashMap<>();
 					userSessionMap.put(String.valueOf(user.getUserId()), session);
 					application.setAttribute("userSessionMap", userSessionMap);
+					if(user.getAvatar()==null||!user.getAvatar().equals(avatar)) {
+						user.setAvatar(avatar);
+						(new Thread(new Runnable() {
+							@Override
+							public void run() {
+								userService.updateAvatar(user.getUserId(),avatar);	
+							}
+						})).start();
+					}
 					data.put("user", user);
 					resultData = ResultData.build_success_result(data);
 				}
 			}
+			return resultData;
 		}catch (Exception e) {
 			e.printStackTrace();
 			resultData = ResultData.build_fail_result(data, "异常", 10002);
-		}finally {
 			return resultData;
 		}
 	}
@@ -95,12 +104,13 @@ public class UserController {
 	 * @param request
 	 * @return
 	 */
-	@SuppressWarnings({ "finally", "unchecked" })
+	@SuppressWarnings({"unchecked" })
 	@RequestMapping("/register")
 	@ResponseBody
 	public ResultData register(
 			@RequestParam("emmCode")String emmCode,
 			@RequestParam("verificationCode")String verificationCode,
+			@RequestParam("avatar")String avatar,
 			HttpSession httpSession) {
 		ServletContext application = httpSession.getServletContext();
 		Map<String, Object> data = new HashMap<>();
@@ -115,7 +125,7 @@ public class UserController {
 				if(session == null) {
 					resultData = ResultData.build_fail_result(data, "与微信会话断开中", 10004);
 				}else{
-					LightUser user = userService.checkUser(verificationCode, session.getOpenId());
+					LightUser user = userService.checkUser(verificationCode, session.getOpenId(),avatar);
 					//检查检验码是否正确
 					if(user != null) {
 						data.put("user", user);
@@ -123,12 +133,12 @@ public class UserController {
 					}else {
 						resultData = ResultData.build_fail_result(data, "验证码不存在", 10003);
 					}
-				}
+				}		
 			}
+			return resultData;
 		}catch (Exception e) {
 			e.printStackTrace();
 			resultData = ResultData.build_fail_result(data, "异常", 10002);
-		}finally{
 			return resultData;
 		}
 	}
@@ -140,7 +150,7 @@ public class UserController {
 	 * @param request
 	 * @return
 	 */
-	@SuppressWarnings({ "finally", "unchecked" })
+	@SuppressWarnings({"unchecked" })
 	@RequestMapping("/apply")
 	@ResponseBody
 	public ResultData apply(
@@ -148,6 +158,7 @@ public class UserController {
 			@RequestParam("name")String name,
 			@RequestParam("message")String message,
 			@RequestParam("emmCode")String emmCode,
+			@RequestParam("avatar")String avatar,
 			HttpSession httpSession){
 		ServletContext application = httpSession.getServletContext();
 		Map<String, Object> data = new HashMap<>();
@@ -162,15 +173,15 @@ public class UserController {
 				if(session == null) {
 					resultData = ResultData.build_fail_result(data, "与微信会话断开中", 10004);
 				}else{
-					UserApply userApply = new UserApply(term, name, message, session.getOpenId());
+					UserApply userApply = new UserApply(term, name, message, session.getOpenId(),avatar);
 					userService.addUserApply(userApply);
 					resultData = ResultData.build_success_result(data);
 				}
 			}
+			return resultData;
 		}catch (Exception e) {
 			e.printStackTrace();
 			resultData = ResultData.build_fail_result(data, "异常", 10002);
-		}finally{
 			return resultData;
 		}
 	}
@@ -179,7 +190,6 @@ public class UserController {
 	 * @param userId
 	 * @return
 	 */
-	@SuppressWarnings("finally")
 	@RequestMapping(value="sign")
 	@ResponseBody
 	public ResultData sign(
@@ -194,10 +204,10 @@ public class UserController {
 			}else {
 				resultData = ResultData.build_fail_result(data, "今日已签到", 10006);
 			}
+			return resultData;
 		}catch (Exception e) {
 			e.printStackTrace();
 			resultData = ResultData.build_fail_result(data, "异常", 10002);
-		}finally{
 			return resultData;
 		}
 	}
@@ -207,7 +217,7 @@ public class UserController {
 	 * @param httpSession
 	 * @return
 	 */
-	@SuppressWarnings({ "unchecked", "finally" })
+	@SuppressWarnings({ "unchecked" })
 	@RequestMapping(value="/logout")
 	@ResponseBody
 	public ResultData logout(
@@ -224,10 +234,10 @@ public class UserController {
 				if(userSessionMap.containsKey("userId"))userSessionMap.remove(userId);
 				resultData = ResultData.build_success_result(data);
 			}
+			return resultData;
 		}catch (Exception e) {
 			e.printStackTrace();
 			resultData = ResultData.build_fail_result(data, "异常", 10002);
-		}finally{
 			return resultData;
 		}
 	}

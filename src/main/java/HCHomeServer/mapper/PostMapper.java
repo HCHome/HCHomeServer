@@ -1,8 +1,8 @@
-package HCHomeServer.service;
+package HCHomeServer.mapper;
 
 import HCHomeServer.model.db.Post;
 
-public interface PostServer {
+public interface PostMapper {
 
 	public void addPost(Post post);
 

@@ -11,12 +11,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.mchange.v2.c3p0.impl.NewProxyCallableStatement;
 
-import HCHomeServer.cos.CosTool;
 import HCHomeServer.model.db.Post;
+import HCHomeServer.model.db.PostPicture;
 import HCHomeServer.model.result.ResultData;
-import HCHomeServer.service.PostServer;
+import HCHomeServer.service.PostService;
 /**
  * 帖子管理接口的控制器
  * @author cj
@@ -27,7 +26,7 @@ import HCHomeServer.service.PostServer;
 public class PostController {
 	
 	@Autowired
-	private PostServer postServer;
+	private PostService postService;
 	
 	/**
 	 * 新增帖子
@@ -38,7 +37,7 @@ public class PostController {
 	 * @param userId
 	 * @return
 	 */
-	@RequestMapping("newPost")
+	@RequestMapping("/newPost")
 	@ResponseBody
 	public ResultData newPost(
 			@RequestParam("category")String category,
@@ -50,8 +49,8 @@ public class PostController {
 		ResultData resultData = null;
 		try {
 			Post post = Post.creatPost(category, title, text, pictureCount, userId);
-			postServer.addPost(post);
-			data.put("postInfo", post);
+			postService.addPost(post);
+			data.put("postInfoWithoutImage", post);
 			resultData = ResultData.build_success_result(data);
 			return resultData;
 		}catch (Exception e) {
@@ -69,10 +68,23 @@ public class PostController {
 	 */
 	@RequestMapping("/uploadPostPicture")
 	@ResponseBody
-	public ResultData uploadPostPicture(@RequestParam("postPicture")MultipartFile postPicture) throws Exception {
-		CosTool.uploadPostPicture(postPicture.getBytes(), "/post/hhh.jpg");
-		
-		return ResultData.build_success_result(null);
+	public ResultData uploadPostPicture(@RequestParam("postPictureEntity")MultipartFile postPictureEntity,
+			@RequestParam("postId")int postId,
+			@RequestParam("order")int order) throws Exception {
+		Map<String, Object> data = new HashMap<>();
+		ResultData resultData = null;
+		try {
+//		CosTool.uploadPostPicture(postPicture.getBytes(), "/post/hhh.jpg");
+			
+			PostPicture postPicture = postService.addPostPicture(postPictureEntity,postId, order);
+			data.put("pictureInfo", postPicture);
+			resultData = ResultData.build_success_result(data);
+			return resultData;
+		}catch (Exception e) {
+			e.printStackTrace();
+			resultData = ResultData.build_fail_result(data, "异常", 10002);
+			return resultData;
+		}
 		
 	}
 }
