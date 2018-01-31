@@ -91,7 +91,12 @@ public class PostController {
 			return resultData;
 		}	
 	}
-	
+	/**
+	 * 删除帖子接口
+	 * @param userId
+	 * @param postId
+	 * @return
+	 */
 	@RequestMapping("deletePost")
 	@ResponseBody
 	public ResultData deletePost(
@@ -109,6 +114,10 @@ public class PostController {
 			return resultData;
 		}	
 	}
+	/**
+	 * 获取置顶帖列表接口
+	 * @return
+	 */
 	@RequestMapping("/topPosts")
 	@ResponseBody
 	public ResultData topPosts() {
@@ -125,6 +134,13 @@ public class PostController {
 			return resultData;
 		}	
 	}
+	/**
+	 * 获取分类帖子列表接口
+	 * @param userId
+	 * @param category
+	 * @param lastPostId
+	 * @return
+	 */
 	@RequestMapping("/postList")
 	@ResponseBody
 	public ResultData postList(
@@ -144,7 +160,13 @@ public class PostController {
 			return resultData;
 		}	
 	}
-
+	/**
+	 * 获取帖子回复列表接口
+	 * @param userId
+	 * @param postId
+	 * @param lastReplyId
+	 * @return
+	 */
 	@RequestMapping("/postReplies")
 	@ResponseBody
 	public ResultData postReplies(
@@ -164,7 +186,16 @@ public class PostController {
 			return resultData;
 		}	
 	}
-	
+	/**
+	 * 新增回复接口
+	 * @param userId
+	 * @param postId
+	 * @param repliedFloor 所回复的楼层号，若回复帖子本身，则为0
+	 * @param repliedFloorUserId 所回复楼层的发表者id，若回复帖子本身，则为贴主id
+	 * @param posterId 贴主id
+	 * @param text
+	 * @return
+	 */
 	@RequestMapping("/addReply")
 	@ResponseBody
 	public ResultData addReply(
@@ -195,8 +226,12 @@ public class PostController {
 			return resultData;
 		}	
 	}
-	
-	@RequestMapping("deleteReply")
+	/**
+	 * 删除一条回复
+	 * @param replyId
+	 * @return
+	 */
+	@RequestMapping("/deleteReply")
 	@ResponseBody
 	public ResultData deleteReply(@RequestParam("replyId")int replyId) {
 		Map<String, Object> data = new HashMap<>();

@@ -49,10 +49,10 @@ public class PostServiceImpl implements PostService {
 		System.out.println(postPictureEntity.getOriginalFilename());
 		String suffix = subString[subString.length-1];
 		String fileName = "/post/"+Long.toString(postId)+"_"+String.valueOf(originalFilename.hashCode())+"."+suffix;
-		
+		//更新数据库
 		PostPicture postPicture = PostPicture.creatPostPicture(CosTool.COS_BASE_URL+fileName,postId,order);
 		postPictureMapper.addPostPicture(postPicture);
-		
+		//上传图片到对象服务器
 		CosTool.uploadPostPicture(postPictureEntity.getBytes(), fileName);
 		
 		return postPicture;
@@ -61,10 +61,14 @@ public class PostServiceImpl implements PostService {
 	@Override
 	@Transactional
 	public void deletePost(int userId, int postId) {
+		//删除帖子的回复
 		postReplyMapper.deletePostReplyByPostId(postId);
+		//获取帖子图片的url并删除帖子在数据库的图片记录
 		List<String> urlList = postPictureMapper.getPictureUrlArrayByPostId(postId);
 		postPictureMapper.deletePictureByPostId(postId);
+		//删除帖子记录
 		postMapper.deletePostByPostId(postId);
+		//删除帖子在对象服务器上的图片
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
@@ -79,13 +83,14 @@ public class PostServiceImpl implements PostService {
 	@Override
 	@Transactional
 	public ArrayList<PostInfo> getPostList(String category, int lastPostId) {
+		//获取帖子记录列表
 		List<Post> posts = null;
 		if(lastPostId <=0) {
 			posts = postMapper.getRecentPosts(category,30);
 		}else {
 			posts = postMapper.getEarlierPosts(category, lastPostId, 30);
 		}
-		
+		//抓取相关返回信息
 		Iterator<Post> iterator = posts.iterator();
 		ArrayList<PostInfo> postInfos = new ArrayList<>();
 		while(iterator.hasNext()) {
@@ -101,7 +106,9 @@ public class PostServiceImpl implements PostService {
 	@Override
 	@Transactional
 	public ArrayList<PostInfo> getTopPosts() {
+		//获取帖子记录列表
 		List<Post> posts = postMapper.getTopPosts();
+		//抓取相关返回信息
 		Iterator<Post> iterator = posts.iterator();
 		ArrayList<PostInfo> postInfos = new ArrayList<>();
 		while(iterator.hasNext()) {
@@ -117,13 +124,14 @@ public class PostServiceImpl implements PostService {
 	@Override
 	@Transactional
 	public List<ReplyInfo> getReplyListByPostId(int userId, int postId, int lastReplyId) {
+		//获取回复列表
 		List<PostReply> postReplies;
 		if(lastReplyId <= 0) {
 			postReplies= postReplyMapper.getEarliestRepliesByPostId(postId, 20);
 		}else {
 			postReplies = postReplyMapper.getLaterRepliesByPostId(postId, lastReplyId, 20);
 		}
-		
+		//抓取相关回复列表
 		Iterator<PostReply> iterator = postReplies.iterator();
 		ArrayList<ReplyInfo> replyInfos = new ArrayList<>();
 		while(iterator.hasNext()) {
@@ -138,8 +146,11 @@ public class PostServiceImpl implements PostService {
 	@Override
 	@Transactional
 	public ReplyInfo addReply(PostReply postReply) {
+		//新增回复记录
 		postReplyMapper.addReply(postReply);
+		//重新抓取回复记录，避免楼层数为0
 		postReply = postReplyMapper.getReplyByReplyId(postReply.getReplyId());
+		//更新帖子楼层数
 		postMapper.updateFloor(postReply.getPostId());
 		return ReplyInfo.build(postReply, userMapper.getUserByUserId(postReply.getReplierId()));
 	}
