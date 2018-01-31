@@ -1,7 +1,9 @@
 package HCHomeServer.controller;
 
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,9 +13,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
-
+import HCHomeServer.cache.UnReadCount;
 import HCHomeServer.model.db.Post;
 import HCHomeServer.model.db.PostPicture;
+import HCHomeServer.model.db.PostReply;
+import HCHomeServer.model.result.PostInfo;
+import HCHomeServer.model.result.ReplyInfo;
 import HCHomeServer.model.result.ResultData;
 import HCHomeServer.service.PostService;
 /**
@@ -96,6 +101,62 @@ public class PostController {
 		ResultData resultData = null;
 		try {
 			postService.deletePost(userId, postId);
+			resultData = ResultData.build_success_result(data);
+			return resultData;
+		}catch (Exception e) {
+			e.printStackTrace();
+			resultData = ResultData.build_fail_result(data, "异常", 10002);
+			return resultData;
+		}	
+	}
+	@RequestMapping("/topPosts")
+	@ResponseBody
+	public ResultData topPosts() {
+		Map<String, Object> data = new HashMap<>();
+		ResultData resultData = null;
+		try {
+			ArrayList<PostInfo> postInfos = postService.getTopPosts();
+			data.put("topPosts", postInfos);
+			resultData = ResultData.build_success_result(data);
+			return resultData;
+		}catch (Exception e) {
+			e.printStackTrace();
+			resultData = ResultData.build_fail_result(data, "异常", 10002);
+			return resultData;
+		}	
+	}
+	@RequestMapping("/postList")
+	@ResponseBody
+	public ResultData postList(
+			@RequestParam("userId")int userId,
+			@RequestParam("category")String category,
+			@RequestParam("lastPostId")int lastPostId) {
+		Map<String, Object> data = new HashMap<>();
+		ResultData resultData = null;
+		try {
+			ArrayList<PostInfo> postInfos = postService.getPostList(category,lastPostId);
+			data.put("postList", postInfos);
+			resultData = ResultData.build_success_result(data);
+			return resultData;
+		}catch (Exception e) {
+			e.printStackTrace();
+			resultData = ResultData.build_fail_result(data, "异常", 10002);
+			return resultData;
+		}	
+	}
+
+	@RequestMapping("/postReplies")
+	@ResponseBody
+	public ResultData postReplies(
+			@RequestParam("userId")int userId,
+			@RequestParam("postId")int postId,
+			@RequestParam("lastReplyId")int lastReplyId) {
+		Map<String, Object> data = new HashMap<>();
+		ResultData resultData = null;
+		try {
+			List<ReplyInfo> replyInfos = postService.getReplyListByPostId(userId, postId, lastReplyId);
+			data.put("replyList", replyInfos);
+			resultData = ResultData.build_success_result(data);
 			return resultData;
 		}catch (Exception e) {
 			e.printStackTrace();
@@ -104,4 +165,50 @@ public class PostController {
 		}	
 	}
 	
+	@RequestMapping("/addReply")
+	@ResponseBody
+	public ResultData addReply(
+			@RequestParam("userId")int userId,
+			@RequestParam("postId")int postId,
+			@RequestParam("repliedFloor")int repliedFloor,
+			@RequestParam("repliedFloorUserId")int repliedFloorUserId,
+			@RequestParam("posterId")int posterId,
+			@RequestParam("text")String text) {
+		Map<String, Object> data = new HashMap<>();
+		ResultData resultData = null;
+		try {
+			
+			ReplyInfo replyInfo = postService.addReply(PostReply.create(postId,userId,repliedFloor,text));
+			//更新未读消息
+			if(repliedFloorUserId==posterId) {
+				UnReadCount.getInstance().upUnRead(posterId);
+			}else {
+				UnReadCount.getInstance().upUnRead(posterId).upUnRead(repliedFloorUserId);
+			}
+			
+			data.put("replyInfo", replyInfo);
+			resultData = ResultData.build_success_result(data);
+			return resultData;
+		}catch (Exception e) {
+			e.printStackTrace();
+			resultData = ResultData.build_fail_result(data, "异常", 10002);
+			return resultData;
+		}	
+	}
+	
+	@RequestMapping("deleteReply")
+	@ResponseBody
+	public ResultData deleteReply(@RequestParam("replyId")int replyId) {
+		Map<String, Object> data = new HashMap<>();
+		ResultData resultData = null;
+		try {
+			postService.deleteReply(replyId);
+			resultData = ResultData.build_success_result(data);
+			return resultData;
+		}catch (Exception e) {
+			e.printStackTrace();
+			resultData = ResultData.build_fail_result(data, "异常", 10002);
+			return resultData;
+		}	
+	}
 }

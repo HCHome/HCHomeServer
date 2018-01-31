@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="HCHomeServer.mapper.PostReplyMapper">
+	<resultMap type="HCHomeServer.model.db.PostReply" id="postReplyMap">
+		<id property="replyId" column="reply_id"/>
+		<result property="postId" column="post_id"/>
+		<result property="replierId" column="replier_id"/>
+		<result property="repliedFloor" column="replied_floor"/>
+		<result property="text" column="text"/>
+		<result property="createdDate" column="created_at"/>
+		<result property="floor" column="floor"/>
+	</resultMap> 
+	
+	<delete id="deletePostReplyByPostId" parameterType="int">
+		delete from post_replies
+		where post_id=#{postId} and reply_id>0
+	</delete>
+	<select id="getEarliestRepliesByPostId" resultMap="postReplyMap">
+		select *
+		from post_replies
+		where post_id = #{postId}
+		order by floor asc
+		limit #{count}
+	</select>
+	<select id="getLaterRepliesByPostId" resultMap="postReplyMap">
+		select *
+		from post_replies
+		where post_id = #{postId} and reply_id &gt;#{lastReplyId}
+		order by floor asc
+		limit #{count}
+	</select>
+	<select id="getRepliesCount" resultType="int">
+		select count(*)
+		from post_replies
+		where post_id=#{postId}
+	</select>
+	<insert id="addReply" parameterType="HCHomeServer.model.db.PostReply" useGeneratedKeys="true" keyProperty="replyId">
+		insert into post_replies(post_id, replier_id, replied_floor, text, created_at, floor)
+		values(#{postId},#{replierId},#{repliedFloor},#{text},#{createdDate},(select current_floor+1
+		 																	  from posts
+		 																	  where post_id=#{postId}))
+	</insert>
+	<delete id="deletePostReplyByReplyId">
+		delete from post_replies
+		where reply_id=#{replyId}
+	</delete>
+	<select id="getReplyByReplyId" resultMap = "postReplyMap">
+		select * 
+		from post_replies where reply_id = #{replyId}
+	</select>
+</mapper>

@@ -2,6 +2,18 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
 "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="HCHomeServer.mapper.PostMapper">
+	<resultMap type="HCHomeServer.model.db.Post" id="postMap">
+		<id property="postId" column="post_id"/>
+		<result property="userId" column="user_id"/>
+		<result property="category" column="category"/>
+		<result property="title" column="title"/>
+		<result property="text" column="text"/>
+		<result property="isTop" column="is_top"/>
+		<result property="pictureCount" column="picture_count"/>
+		<result property="createdDate" column="created_at"/>
+		<result property="lastUpdate" column="lastUpdate"/>
+		<result property="currentFloor" column="current_floor"/>
+	</resultMap>
 	<insert id="addPost" parameterType="HCHomeServer.model.db.Post" useGeneratedKeys="true" keyProperty="postId">
 		insert into posts(user_id, category, title, text, is_top, picture_count, created_at, updated_at,current_floor)
 		values(#{userId}, #{category},#{title},#{text},#{isTop},#{pictureCount},#{createdDate},#{lastUpdate}.#{currentFloor})
@@ -10,4 +22,29 @@
 		delete from posts
 		where post_id=#{postId}
 	</delete>
+	<select id="getRecentPosts" resultMap="postMap">
+		select *
+		from posts
+		where category=#{category} and is_top=0
+		order by updated_at desc
+		limit #{count}
+	</select>
+	<select id="getEarlierPosts" resultMap="postMap">
+		select * from posts
+		where category=#{category} and is_top=0 and 
+												updated_at &lt; (select updated_at 
+														from posts 
+														where post_id=#{basePostId}
+														)
+		order by updated_at desc
+		limit #{count}
+	</select>
+	<select id="getTopPosts" resultMap="postMap">
+		select * from posts
+		where is_top != 0
+		order by updated_at desc
+	</select>
+	<update id="updateFloor">
+		update posts set current_floor = current_floor+1 where post_id = #{postId}
+	</update>
 </mapper>

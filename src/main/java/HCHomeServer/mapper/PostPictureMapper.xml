@@ -10,7 +10,7 @@
 		delete from post_pictures 
 		where post_id=#{postId} and picture_id>0
 	</delete>
-	<select id="getPictureUrlArrayByPostId" parameterType="int">
+	<select id="getPictureUrlArrayByPostId" parameterType="int" resultType="String">
 		select url
 		from post_pictures
 		where post_id=#{postId} and picture_id>0

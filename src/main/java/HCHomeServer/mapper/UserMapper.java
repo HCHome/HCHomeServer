@@ -14,5 +14,6 @@ public interface UserMapper {
 	public void addUser(User user);
 	public void signScoreAdd(@Param("userId")int userId, @Param("score")int score);
 	public void updateAvatar(@Param("userId")int userId, @Param("avatar")String avatar);
+	public User getUserByUserId(@Param("userId")int userId);
 	
 }

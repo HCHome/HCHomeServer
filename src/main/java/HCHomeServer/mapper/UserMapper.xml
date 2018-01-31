@@ -27,4 +27,9 @@
 		update users set avatar = #{avatar}
 		where user_id=#{userId}
 	</update>
+	<select id="getUserByUserId" parameterType="int" resultMap="userMap">
+		select *
+		from users
+		where user_id=#{userId}
+	</select>
 </mapper>
