@@ -18,6 +18,6 @@ public interface PostMapper {
 
 	public List<Post> getTopPosts();
 
-	public void updateFloor(@Param("postId")int postId);
+	public void updateReply(@Param("postId")int postId);
 
 }

@@ -150,8 +150,8 @@ public class PostServiceImpl implements PostService {
 		postReplyMapper.addReply(postReply);
 		//重新抓取回复记录，避免楼层数为0
 		postReply = postReplyMapper.getReplyByReplyId(postReply.getReplyId());
-		//更新帖子楼层数
-		postMapper.updateFloor(postReply.getPostId());
+		//更新帖子楼层数和日期
+		postMapper.updateReply(postReply.getPostId());
 		return ReplyInfo.build(postReply, userMapper.getUserByUserId(postReply.getReplierId()));
 	}
 
