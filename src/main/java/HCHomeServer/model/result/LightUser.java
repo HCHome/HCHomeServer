@@ -18,6 +18,7 @@ public class LightUser implements Serializable{
 	private int signScore;
 	private boolean isSign;
 	private String avatar;
+	private Integer unReadCount;
 	public String getAvatar() {
 		return avatar;
 	}
@@ -60,7 +61,14 @@ public class LightUser implements Serializable{
 		}else {
 			lightUser.setSign(true);
 		}
+		lightUser.unReadCount = null;
 		return lightUser;
+	}
+	public Integer getUnReadCount() {
+		return unReadCount;
+	}
+	public void setUnReadCount(Integer unReadCount) {
+		this.unReadCount = unReadCount;
 	}
 
 }

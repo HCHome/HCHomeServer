@@ -18,6 +18,7 @@ import HCHomeServer.model.db.Post;
 import HCHomeServer.model.db.PostPicture;
 import HCHomeServer.model.db.PostReply;
 import HCHomeServer.model.result.PostInfo;
+import HCHomeServer.model.result.ReceivedReply;
 import HCHomeServer.model.result.ReplyInfo;
 import HCHomeServer.model.result.ResultData;
 import HCHomeServer.service.PostService;
@@ -238,6 +239,32 @@ public class PostController {
 		ResultData resultData = null;
 		try {
 			postService.deleteReply(replyId);
+			resultData = ResultData.build_success_result(data);
+			return resultData;
+		}catch (Exception e) {
+			e.printStackTrace();
+			resultData = ResultData.build_fail_result(data, "异常", 10002);
+			return resultData;
+		}	
+	}
+	/**
+	 * 获取我收到的回复列表
+	 * @param userId
+	 * @return
+	 */
+	@RequestMapping("/getMyReceivedReplies")
+	@ResponseBody
+	public ResultData getMyReceivedReplies(
+			@RequestParam("userId")int userId) {
+		Map<String, Object> data = new HashMap<>();
+		ResultData resultData = null;
+		try {
+			/*
+			List<ReceivedReply> receivedReplies = postService.getReplyListByUserId(userId);
+			
+			UnReadCount.getInstance().getAndRemoveUnRead(userId);
+			data.put("receivedReplies", receivedReplies);
+			*/
 			resultData = ResultData.build_success_result(data);
 			return resultData;
 		}catch (Exception e) {

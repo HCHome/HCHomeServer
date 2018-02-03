@@ -15,6 +15,7 @@ import HCHomeServer.model.db.User;
 import HCHomeServer.model.db.UserApply;
 import HCHomeServer.model.result.LightUser;
 import HCHomeServer.model.result.LightUserApply;
+import HCHomeServer.model.result.ScoreRank;
 import HCHomeServer.service.UserService;
 
 @Service
@@ -85,6 +86,14 @@ public class UserServiceImpl implements UserService {
 	public LightUserApply checkApply(String openId) {
 		return userApplyMapper.checkApply(openId);
 		
+	}
+
+	@Override
+	public ScoreRank getScoreRank(int userId) {
+		ScoreRank scoreRank = new ScoreRank();
+		scoreRank.setUserScoreRankFromUser(userMapper.getUserByUserId(userId), userMapper.getRankByUserId(userId));
+		scoreRank.addRankList(userMapper.getTopSignScoreRankList(50));
+		return scoreRank;
 	}
 
 }

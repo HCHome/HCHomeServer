@@ -13,7 +13,12 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.alibaba.fastjson.JSONObject;
+
 import HCHomeServer.model.result.ResultData;
+import HCHomeServer.model.result.ScoreRank;
+import HCHomeServer.cache.UnReadCount;
 import HCHomeServer.model.db.UserApply;
 import HCHomeServer.model.result.LightUser;
 import HCHomeServer.model.result.LightUserApply;
@@ -36,6 +41,7 @@ public class UserController {
 	/**
 	 * 登录接口，用户打开小程序且授权后所调用的接口
 	 * 检查用户是否已经注册，并向微信服务器注册会话
+	 * 未实现定时清除emmCode
 	 * @param jsCode 
 	 * @param request
 	 * @return ResutData
@@ -64,6 +70,7 @@ public class UserController {
 				//检查用户是否已经注册
 				if(user == null) {
 					LightUserApply userApply = userService.checkApply(session.getOpenId());
+					//检查用户是否正在申请中
 					if(userApply == null) {
 						Map<String, Session> tempSessionMap = (ConcurrentHashMap<String, Session>) application.getAttribute("tempSessionMap");
 						if(tempSessionMap==null) {
@@ -92,7 +99,11 @@ public class UserController {
 							}
 						})).start();
 					}
+					//获取读者未读消息数
+					int unReadCount = UnReadCount.getInstance().getUnRead(user.getUserId());
+					user.setUnReadCount(unReadCount);
 					data.put("user", user);
+					
 					resultData = ResultData.build_success_result(data);
 				}
 			}
@@ -239,8 +250,50 @@ public class UserController {
 				resultData = ResultData.build_success_result(data);
 			}else {
 				if(userSessionMap.containsKey("userId"))userSessionMap.remove(userId);
+				application.setAttribute("userSessionMap", userSessionMap);
 				resultData = ResultData.build_success_result(data);
 			}
+			return resultData;
+		}catch (Exception e) {
+			e.printStackTrace();
+			resultData = ResultData.build_fail_result(data, "异常", 10002);
+			return resultData;
+		}
+	}
+	/**
+	 * 积分排行
+	 * @param userId
+	 * @return
+	 */
+	@RequestMapping("/scoreRankList")
+	@ResponseBody
+	public ResultData scoreRankList(
+			@RequestParam("userId")int userId) {
+		ResultData resultData = null;
+		try {
+			
+			ScoreRank scoreRank = userService.getScoreRank(userId);
+			resultData = ResultData.build_success_result(scoreRank.convertToMap());
+			return resultData;
+		}catch (Exception e) {
+			e.printStackTrace();
+			resultData = ResultData.build_fail_result(null, "异常", 10002);
+			return resultData;
+		}
+	}
+	/**
+	 * 通过关键字搜人，还没实现
+	 * @param searchWord
+	 * @return
+	 */
+	@RequestMapping("/searchUser")
+	@ResponseBody
+	public ResultData searchUser(
+			@RequestParam("searchWord")String searchWord){
+		Map<String, Object> data = new HashMap<>();
+		ResultData resultData = null;
+		try {
+			
 			return resultData;
 		}catch (Exception e) {
 			e.printStackTrace();

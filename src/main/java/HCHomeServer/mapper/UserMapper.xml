@@ -32,4 +32,40 @@
 		from users
 		where user_id=#{userId}
 	</select>
+	<select id="getRankByUserId" parameterType="int" resultType="int">
+		select count(*)+1
+		from users
+		where sign_score &gt; (select sign_score
+								from users
+								where user_id=#{userId})
+			  or user_id in(select user_id
+			  				from (select *
+			  						from sign_record
+			  						where user_id in (select user_id
+			  											from users
+			  											where sign_score = (select sign_score
+														from users
+														where user_id=#{userId}))
+									group by user_id
+									having max(created_at) &lt; (select max(created_at) 
+																from sign_record 
+																where user_id = #{userId}
+																)
+									) as x
+				)
+	</select>
+	<select id="getTopSignScoreRankList" resultMap="userMap">
+		select *
+		from users right join (select *
+							  from sign_record
+							  where sign_id in (select max(sign_id)
+							  					from sign_record
+							  					group by user_id
+							  					)
+							  ) as max_sign on (users.user_id = max_sign.user_id)
+
+		order by sign_score desc, max_sign.created_at 
+		limit 50
+		
+	</select>
 </mapper>
