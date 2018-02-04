@@ -19,7 +19,9 @@ public interface PostService {
 
 	public void deletePost(int userId, int postId);
 
-	public ArrayList<PostInfo> getPostList(String category, int lastPostId);
+	public ArrayList<PostInfo> getPostListForCategory(String category, int lastPostId);
+	
+	public ArrayList<PostInfo> getPostListForAll(int lastPostId);
 
 	public ArrayList<PostInfo> getTopPosts();
 
@@ -28,5 +30,7 @@ public interface PostService {
 	public ReplyInfo addReply(PostReply create);
 
 	public void deleteReply(int replyId);
+
+	
 
 }

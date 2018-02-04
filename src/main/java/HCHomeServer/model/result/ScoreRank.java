@@ -62,7 +62,7 @@ public class ScoreRank implements Serializable {
 		return scoreRankItem;
 	}
 	//内部类，一个积分排行信息项
-	public class ScoreRankItem implements Serializable {
+	static public class ScoreRankItem implements Serializable {
 		
 		private static final long serialVersionUID = 1824464383700837296L;
 		private int userId;

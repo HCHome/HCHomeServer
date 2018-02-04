@@ -82,13 +82,36 @@ public class PostServiceImpl implements PostService {
 
 	@Override
 	@Transactional
-	public ArrayList<PostInfo> getPostList(String category, int lastPostId) {
+	public ArrayList<PostInfo> getPostListForAll(int lastPostId) {
+		//获取帖子记录列表
+		List<Post> posts = null;
+		if(lastPostId <= 0) {
+			posts = postMapper.getRecentPostsForAll(30);
+		}else {
+			posts = postMapper.getEarlierPostsForAll(lastPostId,30);
+		}
+		//抓取相关返回信息
+		Iterator<Post> iterator = posts.iterator();
+		ArrayList<PostInfo> postInfos = new ArrayList<>();
+		while(iterator.hasNext()) {
+			Post temp = iterator.next();
+			User user = userMapper.getUserByUserId(temp.getUserId());
+			int repliesCount = postReplyMapper.getRepliesCount(temp.getPostId());
+			List<String> pictureUrls = postPictureMapper.getPictureUrlArrayByPostId(temp.getPostId());
+			postInfos.add(PostInfo.build(temp, user, pictureUrls, repliesCount));
+		}
+		return postInfos;
+	}
+
+	@Override
+	@Transactional
+	public ArrayList<PostInfo> getPostListForCategory(String category, int lastPostId) {
 		//获取帖子记录列表
 		List<Post> posts = null;
 		if(lastPostId <=0) {
-			posts = postMapper.getRecentPosts(category,30);
+			posts = postMapper.getRecentPostsForCategory(category,30);
 		}else {
-			posts = postMapper.getEarlierPosts(category, lastPostId, 30);
+			posts = postMapper.getEarlierPostsForCategory(category, lastPostId, 30);
 		}
 		//抓取相关返回信息
 		Iterator<Post> iterator = posts.iterator();
@@ -160,5 +183,6 @@ public class PostServiceImpl implements PostService {
 		postReplyMapper.deletePostReplyByReplyId(replyId);
 		
 	}
+
 
 }

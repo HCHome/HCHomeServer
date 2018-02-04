@@ -18,7 +18,6 @@ import HCHomeServer.model.db.Post;
 import HCHomeServer.model.db.PostPicture;
 import HCHomeServer.model.db.PostReply;
 import HCHomeServer.model.result.PostInfo;
-import HCHomeServer.model.result.ReceivedReply;
 import HCHomeServer.model.result.ReplyInfo;
 import HCHomeServer.model.result.ResultData;
 import HCHomeServer.service.PostService;
@@ -136,22 +135,46 @@ public class PostController {
 		}	
 	}
 	/**
+	 * 获取所有最新帖子接口
+	 * @param userId
+	 * @param lastPostId
+	 * @return
+	 */
+	@RequestMapping(value="/postListForAll")
+	@ResponseBody
+	public ResultData postListForAll(
+			@RequestParam("userId")int userId,
+			@RequestParam("lastPostId")int lastPostId) {
+		Map<String, Object> data = new HashMap<>();
+		ResultData resultData = null;
+		try {
+			ArrayList<PostInfo> postInfos = postService.getPostListForAll(lastPostId);
+			data.put("postList", postInfos);
+			resultData = ResultData.build_success_result(data);
+			return resultData;
+		}catch (Exception e) {
+			e.printStackTrace();
+			resultData = ResultData.build_fail_result(data, "异常", 10002);
+			return resultData;
+		}	
+	}
+	/**
 	 * 获取分类帖子列表接口
 	 * @param userId
 	 * @param category
 	 * @param lastPostId
 	 * @return
 	 */
-	@RequestMapping("/postList")
+	@RequestMapping("/postListForCategory")
 	@ResponseBody
-	public ResultData postList(
+	public ResultData postListForCategory(
 			@RequestParam("userId")int userId,
 			@RequestParam("category")String category,
 			@RequestParam("lastPostId")int lastPostId) {
 		Map<String, Object> data = new HashMap<>();
 		ResultData resultData = null;
 		try {
-			ArrayList<PostInfo> postInfos = postService.getPostList(category,lastPostId);
+			ArrayList<PostInfo> postInfos = postService.getPostListForCategory(category,lastPostId);
 			data.put("postList", postInfos);
 			resultData = ResultData.build_success_result(data);
 			return resultData;

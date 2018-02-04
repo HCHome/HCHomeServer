@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.alibaba.fastjson.JSONObject;
 
 import HCHomeServer.model.result.ResultData;
 import HCHomeServer.model.result.ScoreRank;
@@ -271,7 +270,6 @@ public class UserController {
 			@RequestParam("userId")int userId) {
 		ResultData resultData = null;
 		try {
-			
 			ScoreRank scoreRank = userService.getScoreRank(userId);
 			resultData = ResultData.build_success_result(scoreRank.convertToMap());
 			return resultData;
