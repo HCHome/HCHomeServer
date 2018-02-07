@@ -9,6 +9,15 @@
 		<result property="infoId" column="info_id"/>
 		<result property="wechatIdentify" column="wechat_identify"/>
 		<result property="avatar" column="avatar"/>
+		<result property="sex" column="sex"/>
+		<result property="school" column="school"/>
+		<result property="profession" column="profession"/>
+		<result property="job" column="job"/>
+		<result property="term" column="term"/>
+		<result property="phoneNumber" column="phone_number"/>
+		<result property="qqNumber" column="qq_number"/>
+		<result property="wechatNumber" column="wechat_number"/>
+		<result property="isSingleDog" column="is_single_dog"/>
 	</resultMap>
 	<select id="getUserByOpenId" parameterType="String" resultMap="userMap">
 		select *

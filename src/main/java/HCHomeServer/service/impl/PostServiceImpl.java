@@ -146,7 +146,7 @@ public class PostServiceImpl implements PostService {
 
 	@Override
 	@Transactional
-	public List<ReplyInfo> getReplyListByPostId(int userId, int postId, int lastReplyId) {
+	public List<ReplyInfo> getReplyListByPostId(int postId, int lastReplyId) {
 		//获取回复列表
 		List<PostReply> postReplies;
 		if(lastReplyId <= 0) {
@@ -182,6 +182,25 @@ public class PostServiceImpl implements PostService {
 	public void deleteReply(int replyId) {
 		postReplyMapper.deletePostReplyByReplyId(replyId);
 		
+	}
+
+	@Override
+	public ArrayList<PostInfo> getMyPostList(int userId) {
+		//获取帖子记录列表
+		List<Post> posts = postMapper.getMyPostList(userId);
+		//抓取相关返回信息
+		Iterator<Post> iterator = posts.iterator();
+		ArrayList<PostInfo> postInfos = new ArrayList<>();
+		while(iterator.hasNext()) {
+			Post temp = iterator.next();
+			//帖子回复数
+			int repliesCount = postReplyMapper.getRepliesCount(temp.getPostId());
+			//帖子图片
+			List<String> pictureUrls = postPictureMapper.getPictureUrlArrayByPostId(temp.getPostId());
+			//帖子信息整理
+			postInfos.add(PostInfo.build(temp, pictureUrls, repliesCount));
+		}
+		return postInfos;
 	}
 
 

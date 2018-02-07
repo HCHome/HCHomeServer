@@ -280,6 +280,25 @@ public class UserController {
 		}
 	}
 	/**
+	 * 未实现
+	 * @return
+	 */
+	@RequestMapping("/modifyUserInfo")
+	@ResponseBody
+	public ResultData modifyUserInfo(
+			@RequestParam("userId")int userId) {
+		Map<String, Object> data = new HashMap<>();
+		ResultData resultData = null;
+		try {
+			
+			return resultData;
+		}catch (Exception e) {
+			e.printStackTrace();
+			resultData = ResultData.build_fail_result(data, "异常", 10002);
+			return resultData;
+		}
+	}
+	/**
 	 * 通过关键字搜人，还没实现
 	 * @param searchWord
 	 * @return

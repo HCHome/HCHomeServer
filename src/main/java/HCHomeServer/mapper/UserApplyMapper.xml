@@ -13,4 +13,9 @@
 		insert into user_applies(term,name,apply_message,created_at,wechat_identify,avatar)
 		values (#{term},#{name},#{message},#{createdDate},#{wechatIdentify},#{avatar})
 	</insert>
+	<select id="checkApply" resultMap="userApplyMap">
+		select *
+		from user_applies
+		where wechat_identify = #{openId}
+	</select>
 </mapper>

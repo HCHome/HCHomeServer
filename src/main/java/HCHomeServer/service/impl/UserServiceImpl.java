@@ -54,7 +54,13 @@ public class UserServiceImpl implements UserService {
 		}
 		//检查今天是否已经签到
 		SignRecord sign = signRecordMapper.getTodaySignRecord(user.getUserId()); 
-		return LightUser.buildByUser(user,sign);
+		LightUser lightUser = LightUser.buildByUser(user,sign);
+		if(user.getSchool()==null) {
+			lightUser.setIsFirstLogin(Boolean.TRUE);
+		}else {
+			lightUser.setIsFirstLogin(Boolean.FALSE);
+		}
+		return lightUser;
 	}
 
 	@Override

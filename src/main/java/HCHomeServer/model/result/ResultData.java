@@ -13,9 +13,13 @@ import java.util.Map;
 public class ResultData implements Serializable{
 
 	private static final long serialVersionUID = -796476823964403482L;
+	//具体返回数据
 	private Map<String, Object> data;
+	//返回信息描述
 	private String msg;
+	//状态码
 	private Integer status;
+	//时间
 	private Date date;
 	private ResultData() {
 		

@@ -18,6 +18,7 @@ import HCHomeServer.model.db.Post;
 import HCHomeServer.model.db.PostPicture;
 import HCHomeServer.model.db.PostReply;
 import HCHomeServer.model.result.PostInfo;
+import HCHomeServer.model.result.ReceivedReply;
 import HCHomeServer.model.result.ReplyInfo;
 import HCHomeServer.model.result.ResultData;
 import HCHomeServer.service.PostService;
@@ -73,7 +74,8 @@ public class PostController {
 	 */
 	@RequestMapping("/uploadPostPicture")
 	@ResponseBody
-	public ResultData uploadPostPicture(@RequestParam("postPictureEntity")MultipartFile postPictureEntity,
+	public ResultData uploadPostPicture(
+			@RequestParam("postPictureEntity")MultipartFile postPictureEntity,
 			@RequestParam("postId")int postId,
 			@RequestParam("order")int order) throws Exception {
 		Map<String, Object> data = new HashMap<>();
@@ -143,7 +145,7 @@ public class PostController {
 	@RequestMapping(value="/postListForAll")
 	@ResponseBody
 	public ResultData postListForAll(
-			@RequestParam("userId")int userId,
+//			@RequestParam("userId")int userId,
 			@RequestParam("lastPostId")int lastPostId) {
 		Map<String, Object> data = new HashMap<>();
 		ResultData resultData = null;
@@ -168,7 +170,7 @@ public class PostController {
 	@RequestMapping("/postListForCategory")
 	@ResponseBody
 	public ResultData postListForCategory(
-			@RequestParam("userId")int userId,
+//			@RequestParam("userId")int userId,
 			@RequestParam("category")String category,
 			@RequestParam("lastPostId")int lastPostId) {
 		Map<String, Object> data = new HashMap<>();
@@ -194,13 +196,13 @@ public class PostController {
 	@RequestMapping("/postReplies")
 	@ResponseBody
 	public ResultData postReplies(
-			@RequestParam("userId")int userId,
+//			@RequestParam("userId")int userId,
 			@RequestParam("postId")int postId,
 			@RequestParam("lastReplyId")int lastReplyId) {
 		Map<String, Object> data = new HashMap<>();
 		ResultData resultData = null;
 		try {
-			List<ReplyInfo> replyInfos = postService.getReplyListByPostId(userId, postId, lastReplyId);
+			List<ReplyInfo> replyInfos = postService.getReplyListByPostId(postId, lastReplyId);
 			data.put("replyList", replyInfos);
 			resultData = ResultData.build_success_result(data);
 			return resultData;
@@ -270,6 +272,23 @@ public class PostController {
 			return resultData;
 		}	
 	}
+	@RequestMapping(value="/getMyPostList")
+	@ResponseBody
+	public ResultData getMyPostList(
+			@RequestParam("userId")int userId) {
+		Map<String, Object> data = new HashMap<>();
+		ResultData resultData = null;
+		try {
+			ArrayList<PostInfo> postInfos = postService.getMyPostList(userId);
+			data.put("postList", postInfos);
+			resultData = ResultData.build_success_result(data);
+			return resultData;
+		}catch (Exception e) {
+			e.printStackTrace();
+			resultData = ResultData.build_fail_result(data, "异常", 10002);
+			return resultData;
+		}	
+	}
 	/**
 	 * 获取我收到的回复列表
 	 * @param userId
@@ -296,4 +315,5 @@ public class PostController {
 			return resultData;
 		}	
 	}
+	
 }

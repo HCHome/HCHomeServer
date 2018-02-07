@@ -25,11 +25,14 @@ public interface PostService {
 
 	public ArrayList<PostInfo> getTopPosts();
 
-	public List<ReplyInfo> getReplyListByPostId(int userId, int postId, int lastReplyId);
 
 	public ReplyInfo addReply(PostReply create);
 
 	public void deleteReply(int replyId);
+
+	List<ReplyInfo> getReplyListByPostId(int postId, int lastReplyId);
+
+	public ArrayList<PostInfo> getMyPostList(int userId);
 
 	
 

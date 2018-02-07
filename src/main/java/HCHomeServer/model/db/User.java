@@ -7,6 +7,15 @@ public class User {
 	private int infoId;
 	private String wechatIdentify;
 	private String avatar;
+	private String sex;
+	private String school;
+	private String profession;
+	private String job;
+	private String term;
+	private String phoneNumber;
+	private String qqNumber;
+	private String wechatNumber;
+	private boolean isSingleDog;
 	public int getUserId() {
 		return userId;
 	}
@@ -57,5 +66,59 @@ public class User {
 		user.setWechatIndentify(openedId);
 		user.setAvatar(avatar);
 		return user;
+	}
+	public String getSex() {
+		return sex;
+	}
+	public void setSex(String sex) {
+		this.sex = sex;
+	}
+	public String getSchool() {
+		return school;
+	}
+	public void setSchool(String school) {
+		this.school = school;
+	}
+	public String getProfession() {
+		return profession;
+	}
+	public void setProfession(String profession) {
+		this.profession = profession;
+	}
+	public String getJob() {
+		return job;
+	}
+	public void setJob(String job) {
+		this.job = job;
+	}
+	public String getTerm() {
+		return term;
+	}
+	public void setTerm(String term) {
+		this.term = term;
+	}
+	public String getPhoneNumber() {
+		return phoneNumber;
+	}
+	public void setPhoneNumber(String phoneNumber) {
+		this.phoneNumber = phoneNumber;
+	}
+	public String getQqNumber() {
+		return qqNumber;
+	}
+	public void setQqNumber(String qqNumber) {
+		this.qqNumber = qqNumber;
+	}
+	public String getWechatNumber() {
+		return wechatNumber;
+	}
+	public void setWechatNumber(String wechatNumber) {
+		this.wechatNumber = wechatNumber;
+	}
+	public boolean isSingleDog() {
+		return isSingleDog;
+	}
+	public void setSingleDog(boolean isSingleDog) {
+		this.isSingleDog = isSingleDog;
 	}
 }

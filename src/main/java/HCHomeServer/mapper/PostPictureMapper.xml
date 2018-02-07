@@ -14,5 +14,6 @@
 		select url
 		from post_pictures
 		where post_id=#{postId} and picture_id>0
+		order by picture_id
 	</select>
 </mapper>
