@@ -19,5 +19,7 @@ public interface UserMapper {
 	public User getUserByUserId(@Param("userId")int userId);
 	public int getRankByUserId(@Param("userId")int userId);
 	public List<User> getTopSignScoreRankList(@Param("count")int count);
+	public void modifyUserInfo(User user);
+	public List<User> searchUser(@Param("searchWord")String searchWord, @Param("column")String column);
 	
 }

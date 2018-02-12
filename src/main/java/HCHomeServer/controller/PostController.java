@@ -172,7 +172,7 @@ public class PostController {
 	public ResultData postListForCategory(
 //			@RequestParam("userId")int userId,
 			@RequestParam("category")String category,
-			@RequestParam("lastPostId")int lastPostId) {
+			@RequestParam(value="lastPostId", required=false, defaultValue="0")int lastPostId) {
 		Map<String, Object> data = new HashMap<>();
 		ResultData resultData = null;
 		try {
@@ -198,7 +198,7 @@ public class PostController {
 	public ResultData postReplies(
 //			@RequestParam("userId")int userId,
 			@RequestParam("postId")int postId,
-			@RequestParam("lastReplyId")int lastReplyId) {
+			@RequestParam(value="lastReplyId", required=false, defaultValue="0" )int lastReplyId) {
 		Map<String, Object> data = new HashMap<>();
 		ResultData resultData = null;
 		try {
@@ -272,15 +272,42 @@ public class PostController {
 			return resultData;
 		}	
 	}
-	@RequestMapping(value="/getMyPostList")
+	/**
+	 * 获取我发布的帖子列表
+	 * @param userId
+	 * @return
+	 */
+	@RequestMapping(value="/getUserPostList")
 	@ResponseBody
-	public ResultData getMyPostList(
+	public ResultData getUserPostList(
 			@RequestParam("userId")int userId) {
 		Map<String, Object> data = new HashMap<>();
 		ResultData resultData = null;
 		try {
-			ArrayList<PostInfo> postInfos = postService.getMyPostList(userId);
+			ArrayList<PostInfo> postInfos = postService.getUserPostList(userId);
 			data.put("postList", postInfos);
+			resultData = ResultData.build_success_result(data);
+			return resultData;
+		}catch (Exception e) {
+			e.printStackTrace();
+			resultData = ResultData.build_fail_result(data, "异常", 10002);
+			return resultData;
+		}	
+	}
+	/**
+	 * 通过帖子Id获取帖子的详细信息，不包括回复
+	 * @param postId
+	 * @return
+	 */
+	@RequestMapping(value="/getPostInfoByPostId")
+	@ResponseBody
+	public ResultData getPostInfoByPostId(
+			@RequestParam("postId")int postId) {
+		Map<String, Object> data = new HashMap<>();
+		ResultData resultData = null;
+		try {
+			PostInfo postInfo = postService.getPostInfoByPostId(postId);
+			data.put("postInfo", postInfo);
 			resultData = ResultData.build_success_result(data);
 			return resultData;
 		}catch (Exception e) {
@@ -297,16 +324,14 @@ public class PostController {
 	@RequestMapping("/getMyReceivedReplies")
 	@ResponseBody
 	public ResultData getMyReceivedReplies(
-			@RequestParam("userId")int userId) {
+			@RequestParam("userId")int userId,
+			@RequestParam(value="lastReplyId",required=false,defaultValue="0")int lastReplyId) {
 		Map<String, Object> data = new HashMap<>();
 		ResultData resultData = null;
 		try {
-			/*
-			List<ReceivedReply> receivedReplies = postService.getReplyListByUserId(userId);
-			
+			List<ReceivedReply> receivedReplies = postService.getReplyListByUserId(userId, lastReplyId);
 			UnReadCount.getInstance().getAndRemoveUnRead(userId);
 			data.put("receivedReplies", receivedReplies);
-			*/
 			resultData = ResultData.build_success_result(data);
 			return resultData;
 		}catch (Exception e) {

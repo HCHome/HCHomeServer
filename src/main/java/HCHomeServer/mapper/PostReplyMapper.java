@@ -21,5 +21,10 @@ public interface PostReplyMapper {
 	public void deletePostReplyByReplyId(@Param("replyId")int replyId);
 
 	public PostReply getReplyByReplyId(@Param("replyId")int replyId);
+
+	public List<PostReply> getUserRecentReceivedReplies(@Param("userId")int userId, @Param("count")int count);
+
+	public List<PostReply> getEarlierReceivedReplies(@Param("userId")int userId, @Param("count")int count, @Param("lastReplyId")int lastReplyId);
+	
 	
 }

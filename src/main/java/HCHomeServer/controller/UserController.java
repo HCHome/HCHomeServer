@@ -14,10 +14,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-
 import HCHomeServer.model.result.ResultData;
 import HCHomeServer.model.result.ScoreRank;
+import HCHomeServer.model.result.UserSearchManager;
+import HCHomeServer.model.result.UserSearchManager.MatchType;
 import HCHomeServer.cache.UnReadCount;
+import HCHomeServer.model.db.User;
 import HCHomeServer.model.db.UserApply;
 import HCHomeServer.model.result.LightUser;
 import HCHomeServer.model.result.LightUserApply;
@@ -283,14 +285,29 @@ public class UserController {
 	 * 未实现
 	 * @return
 	 */
-	@RequestMapping("/modifyUserInfo")
+	@RequestMapping(value="/modifyUserInfo",
+			params= {
+				"userId", "sex", "school", "profession", "job", "term", "isDisplay", 
+				"phoneNumber", "qqNumber", "wechatNumber", "isSingleDog"
+			})
 	@ResponseBody
 	public ResultData modifyUserInfo(
-			@RequestParam("userId")int userId) {
+//			@RequestParam("userId")int userId,
+//			@RequestParam("sex")String sex,
+//			@RequestParam("school")String school,
+//			@RequestParam("profession")String profession,
+//			@RequestParam("job")String job,
+//			@RequestParam("term")String term,
+//			@RequestParam("phoneNumber")String phoneNumber,
+//			@RequestParam("qqNumber")String qqNumber,
+//			@RequestParam("wechatNumber")String wechatNumber,
+//			@RequestParam("isSingleDog")boolean isSingleDog,
+			User user) {
 		Map<String, Object> data = new HashMap<>();
 		ResultData resultData = null;
 		try {
-			
+			userService.modifyUserInfo(user);
+			resultData = ResultData.build_success_result(data);
 			return resultData;
 		}catch (Exception e) {
 			e.printStackTrace();
@@ -306,11 +323,32 @@ public class UserController {
 	@RequestMapping("/searchUser")
 	@ResponseBody
 	public ResultData searchUser(
-			@RequestParam("searchWord")String searchWord){
+			@RequestParam("searchWord")String searchWord,
+			@RequestParam(value="matchType", required=false)MatchType[] matchTypes){
 		Map<String, Object> data = new HashMap<>();
 		ResultData resultData = null;
 		try {
-			
+			UserSearchManager searchResult = userService.searchFuzzilyUser(searchWord, matchTypes);
+			resultData = ResultData.build_success_result(searchResult.convertToMap());
+			return resultData;
+		}catch (Exception e) {
+			e.printStackTrace();
+			resultData = ResultData.build_fail_result(data, "异常", 10002);
+			return resultData;
+		}
+	}
+	/**
+	 * 需求不明，暂未实现
+	 * @param userId
+	 * @return
+	 */
+	@RequestMapping("/getUserInfo")
+	@ResponseBody
+	public ResultData getUserInfo(
+			@RequestParam("userId")int userId) {
+		Map<String, Object> data = new HashMap<>();
+		ResultData resultData = null;
+		try {	
 			return resultData;
 		}catch (Exception e) {
 			e.printStackTrace();

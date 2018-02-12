@@ -26,4 +26,6 @@ public interface PostMapper {
 
 	public List<Post> getMyPostList(@Param("userId")int userId);
 
+	public Post getPostByPostId(@Param("postId")int postId);
+
 }

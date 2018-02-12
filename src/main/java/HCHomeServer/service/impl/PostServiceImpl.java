@@ -21,6 +21,7 @@ import HCHomeServer.model.db.PostPicture;
 import HCHomeServer.model.db.PostReply;
 import HCHomeServer.model.db.User;
 import HCHomeServer.model.result.PostInfo;
+import HCHomeServer.model.result.ReceivedReply;
 import HCHomeServer.model.result.ReplyInfo;
 import HCHomeServer.service.PostService;
 
@@ -185,7 +186,7 @@ public class PostServiceImpl implements PostService {
 	}
 
 	@Override
-	public ArrayList<PostInfo> getMyPostList(int userId) {
+	public ArrayList<PostInfo> getUserPostList(int userId) {
 		//获取帖子记录列表
 		List<Post> posts = postMapper.getMyPostList(userId);
 		//抓取相关返回信息
@@ -201,6 +202,37 @@ public class PostServiceImpl implements PostService {
 			postInfos.add(PostInfo.build(temp, pictureUrls, repliesCount));
 		}
 		return postInfos;
+	}
+
+	@Override
+	public PostInfo getPostInfoByPostId(int postId) {
+		Post post = postMapper.getPostByPostId(postId);
+		
+		//帖子回复数
+		int repliesCount = postReplyMapper.getRepliesCount(post.getPostId());
+		//帖子图片
+		List<String> pictureUrls = postPictureMapper.getPictureUrlArrayByPostId(post.getPostId());
+		//贴主信息
+		User user = userMapper.getUserByUserId(post.getUserId());
+		//帖子信息整理
+		return PostInfo.build(post, user, pictureUrls, repliesCount);
+	}
+
+	@Override
+	public List<ReceivedReply> getReplyListByUserId(int userId, int lastReplyId) {
+		List<PostReply> postReplies = null;
+		if(lastReplyId==0) {
+			postReplies = postReplyMapper.getUserRecentReceivedReplies(userId, 20);
+		}else {
+			postReplies = postReplyMapper.getEarlierReceivedReplies(userId, 20, lastReplyId);
+		}
+		List<ReceivedReply> receivedReplies = new ArrayList<>();
+		Iterator<PostReply> iterator = postReplies.iterator();
+		while(iterator.hasNext()) {
+			PostReply temp = iterator.next();
+			receivedReplies.add(ReceivedReply.buildFromReplyAndUser(temp, userMapper.getUserByUserId(userId)));
+		}
+		return receivedReplies;
 	}
 
 

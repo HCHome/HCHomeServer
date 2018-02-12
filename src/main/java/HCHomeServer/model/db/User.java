@@ -1,10 +1,11 @@
 package HCHomeServer.model.db;
 
+
 public class User {
-	private int userId;
+	private Integer userId;
 	private String nickname;
-	private int signScore;
-	private int infoId;
+	private Integer signScore;
+	private Integer infoId;
 	private String wechatIdentify;
 	private String avatar;
 	private String sex;
@@ -15,8 +16,20 @@ public class User {
 	private String phoneNumber;
 	private String qqNumber;
 	private String wechatNumber;
-	private boolean isSingleDog;
-	public int getUserId() {
+	private Boolean isSingleDog;
+	private Boolean isDisplay;
+	private User() {
+	}
+	public static User createUser(PersonInfo info, String openedId, String avatar) {
+		User user = new User();
+		user.setInfoId(info.getInfoId());
+		user.setNickname(info.getName());
+		user.setSignScore(0);
+		user.setWechatIdentify(openedId);
+		user.setAvatar(avatar);
+		return user;
+	}
+	public Integer getUserId() {
 		return userId;
 	}
 	public String getAvatar() {
@@ -28,7 +41,10 @@ public class User {
 	public void setWechatIdentify(String wechatIdentify) {
 		this.wechatIdentify = wechatIdentify;
 	}
-	public void setUserId(int userId) {
+	public String getWechatIdentify() {
+		return wechatIdentify;
+	}
+	public void setUserId(Integer userId) {
 		this.userId = userId;
 	}
 	public String getNickname() {
@@ -37,36 +53,19 @@ public class User {
 	public void setNickname(String nickname) {
 		this.nickname = nickname;
 	}
-	public int getSignScore() {
+	public Integer getSignScore() {
 		return signScore;
 	}
-	public void setSignScore(int signScore) {
+	public void setSignScore(Integer signScore) {
 		this.signScore = signScore;
 	}
-	public int getInfoId() {
+	public Integer getInfoId() {
 		return infoId;
 	}
-	public void setInfoId(int infoId) {
+	public void setInfoId(Integer infoId) {
 		this.infoId = infoId;
 	}
-	public String getWechatIdentify() {
-		return wechatIdentify;
-	}
-	public void setWechatIndentify(String wechatIndentify) {
-		this.wechatIdentify = wechatIndentify;
-	}
 
-	private User() {
-	}
-	public static User createUser(PersonInfo info, String openedId, String avatar) {
-		User user = new User();
-		user.setInfoId(info.getInfoId());
-		user.setNickname(info.getName());
-		user.setSignScore(0);
-		user.setWechatIndentify(openedId);
-		user.setAvatar(avatar);
-		return user;
-	}
 	public String getSex() {
 		return sex;
 	}
@@ -115,10 +114,17 @@ public class User {
 	public void setWechatNumber(String wechatNumber) {
 		this.wechatNumber = wechatNumber;
 	}
-	public boolean isSingleDog() {
+	public Boolean getIsSingleDog() {
 		return isSingleDog;
 	}
-	public void setSingleDog(boolean isSingleDog) {
+	public void setIsSingleDog(Boolean isSingleDog) {
 		this.isSingleDog = isSingleDog;
 	}
+	public Boolean getIsDisplay() {
+		return isDisplay;
+	}
+	public void setIsDisplay(Boolean isDisplay) {
+		this.isDisplay = isDisplay;
+	}
+	
 }

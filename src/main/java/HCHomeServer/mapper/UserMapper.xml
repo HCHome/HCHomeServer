@@ -6,8 +6,8 @@
 		<id property="userId" column="user_id"/>
 		<result property="nickname" column="nickname"/>
 		<result property="signScore" column="sign_score"/>
-		<result property="infoId" column="info_id"/>
-		<result property="wechatIdentify" column="wechat_identify"/>
+	<!--<result property="infoId" column="info_id"/> 				-->	
+	<!--<result property="wechatIdentify" column="wechat_identify"/>-->	
 		<result property="avatar" column="avatar"/>
 		<result property="sex" column="sex"/>
 		<result property="school" column="school"/>
@@ -18,6 +18,7 @@
 		<result property="qqNumber" column="qq_number"/>
 		<result property="wechatNumber" column="wechat_number"/>
 		<result property="isSingleDog" column="is_single_dog"/>
+		<result property="isDisplay" column="is_display"/>
 	</resultMap>
 	<select id="getUserByOpenId" parameterType="String" resultMap="userMap">
 		select *
@@ -75,6 +76,16 @@
 
 		order by sign_score desc, max_sign.created_at 
 		limit 50
-		
+	</select>
+	<update id="modifyUserInfo" parameterType="HCHomeServer.model.db.User">
+		update users
+		set sex=#{sex}, school=#{school}, profession=#{profession}, job=#{job}, term=#{term}, phone_number=#{phoneNumber},
+			qq_number=#{qqNumber}, wechat_number=#{wechatNumber}, is_single_dog=#{isSingleDog}, is_display=#{isDisplay}
+		where user_id=#{userId}
+	</update>
+	<select id="searchUser" resultMap="userMap">
+		select *
+		from users
+		where locate(#{searchWord}, ${column})>0
 	</select>
 </mapper>

@@ -1,5 +1,7 @@
 package HCHomeServer.service.impl;
 
+import java.util.List;
+
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,7 +18,9 @@ import HCHomeServer.model.db.UserApply;
 import HCHomeServer.model.result.LightUser;
 import HCHomeServer.model.result.LightUserApply;
 import HCHomeServer.model.result.ScoreRank;
+import HCHomeServer.model.result.UserSearchManager;
 import HCHomeServer.service.UserService;
+import HCHomeServer.model.result.UserSearchManager.*;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -100,6 +104,31 @@ public class UserServiceImpl implements UserService {
 		scoreRank.setUserScoreRankFromUser(userMapper.getUserByUserId(userId), userMapper.getRankByUserId(userId));
 		scoreRank.addRankList(userMapper.getTopSignScoreRankList(50));
 		return scoreRank;
+	}
+
+	@Override
+	public void modifyUserInfo(User user) {
+		userMapper.modifyUserInfo(user);
+		
+	}
+
+	@Override
+	public UserSearchManager searchFuzzilyUser(String searchWord, MatchType[] matchTypes) {
+		searchWord = UserSearchManager.searchWordPreHandle(searchWord);
+		UserSearchManager userSearchManager = new UserSearchManager();
+		List<User> users = null;
+		if(matchTypes==null) {
+			for(MatchType e : MatchType.values()) {
+				users = userMapper.searchUser(searchWord, e.name());
+				userSearchManager.addResultsByUsers(users, e);
+			}
+		}else {
+			for(MatchType matchType : matchTypes) {
+				users = userMapper.searchUser(searchWord, matchType.name());
+				userSearchManager.addResultsByUsers(users, matchType);
+			}
+		}
+		return userSearchManager;
 	}
 
 }
