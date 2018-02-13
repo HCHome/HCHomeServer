@@ -31,5 +31,7 @@ public interface UserService {
 	public void modifyUserInfo(User user);
 	//用户模糊搜索
 	public UserSearchManager searchFuzzilyUser(String searchWord, MatchType[] matchTypes);
+	
+	public User getUserInfo(int userId);
 
 }

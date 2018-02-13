@@ -8,8 +8,16 @@
   <!-- spring核心监听器 -->
   <listener>
         <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+           
   </listener>
-  
+   	<context-param>   
+    	<param-name>webAppRootKey</param-name>   
+    	<param-value>webRoot</param-value> 
+ 	</context-param>   
+
+	<listener>   
+   		<listener-class>org.springframework.web.util.WebAppRootListener</listener-class> 
+	</listener> 
   <!-- 指定 Spring 的配置文件 -->
    <context-param>
        <param-name>contextConfigLocation</param-name>

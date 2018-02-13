@@ -27,7 +27,6 @@ public class AccessInterceptor implements HandlerInterceptor {
 	@Override
 	public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler,
 			ModelAndView modelAndView) throws Exception {
-		// TODO 自动生成的方法存根
 		
 	}
 

@@ -131,4 +131,9 @@ public class UserServiceImpl implements UserService {
 		return userSearchManager;
 	}
 
+	@Override
+	public User getUserInfo(int userId) {
+		return userMapper.getUserByUserId(userId);
+	}
+
 }

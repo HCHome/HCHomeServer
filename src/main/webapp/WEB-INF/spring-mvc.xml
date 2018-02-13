@@ -17,21 +17,17 @@
    	<mvc:interceptors>
    		<bean class="HCHomeServer.interceptor.AccessInterceptor"></bean>	
    	</mvc:interceptors>
-   
+   	<!-- applicationEvent监听器 -->
+	<!-- 已用@Component配置
+		<bean id="applicationEventListener" class="HCHomeServer.listener.ApplicationEventListener" />
+	-->
     <!-- 视图解析器 -->
     <bean id="viewResolver"
         class="org.springframework.web.servlet.view.InternalResourceViewResolver">
         <property name="prefix" value="/WEB-INF/content/" />
         <property name="suffix" value=".jsp" />
     </bean>
-    <!-- 配置枚举类型转换器 -->
-    <bean id="enumConverter" class="org.springframework.format.support.FormattingConversionServiceFactoryBean">
-    	<property name="converters">
-    		<set>
-    			<bean class="HCHomeServer.converter.StringToMatchTypeConverter" />
-    		</set>
-    	</property>
-    </bean>
+    
     <!-- 文件上传 -->
     <bean id="multipartResolver" 
     		class="org.springframework.web.multipart.commons.CommonsMultipartResolver">

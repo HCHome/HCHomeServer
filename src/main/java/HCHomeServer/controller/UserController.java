@@ -316,7 +316,7 @@ public class UserController {
 		}
 	}
 	/**
-	 * 通过关键字搜人，还没实现
+	 * 通过关键字搜人
 	 * @param searchWord
 	 * @return
 	 */
@@ -348,7 +348,10 @@ public class UserController {
 			@RequestParam("userId")int userId) {
 		Map<String, Object> data = new HashMap<>();
 		ResultData resultData = null;
-		try {	
+		try {
+			User user = userService.getUserInfo(userId);
+			data.put("user", user);
+			resultData = ResultData.build_success_result(data);
 			return resultData;
 		}catch (Exception e) {
 			e.printStackTrace();
