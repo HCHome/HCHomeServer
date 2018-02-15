@@ -61,7 +61,7 @@ public class UnReadCount implements Serializable{
 	 */
 	public void saveMap() {
 		if(unReadCountMap.isEmpty())return;
-		String saveParentPath =  webRoot.substring(0, webRoot.length()-1)+"Cache";
+		String saveParentPath =  webRoot.substring(0, webRoot.length()-21)+"webcache/HCHomeServer";
 		String savePath = saveParentPath+"/UnReadCount.txt";
 		System.out.println(savePath);
 		PrintStream printStream = null;
@@ -93,7 +93,7 @@ public class UnReadCount implements Serializable{
 	@SuppressWarnings("unchecked")
 	public void loadMap(){
 		if(!unReadCountMap.isEmpty())return;
-		String savePath = webRoot.substring(0, webRoot.length()-1)+"Cache/UnReadCount.txt";
+		String savePath = webRoot.substring(0, webRoot.length()-21)+"webcache/HCHomeServer/UnReadCount.txt";
 		System.out.println(savePath);
 		FileInputStream  fileInputStream = null;
 		try {
