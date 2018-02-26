@@ -31,6 +31,7 @@ public class Session implements Serializable{
 	}
 	public Session() {
 	}
+	
 	public static Session build_from_json(JSONObject resultJson) {
 		Session session = new Session();
 		session.setOpenId(resultJson.getString("openid"));

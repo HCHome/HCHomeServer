@@ -33,7 +33,7 @@
 	<select id="getRepliesCount" resultType="int">
 		select count(*)
 		from post_replies
-		where post_id=#{postId}
+		where post_id = #{postId}
 	</select>
 	<insert id="addReply" parameterType="HCHomeServer.model.db.PostReply" useGeneratedKeys="true" keyProperty="replyId">
 		insert into post_replies(post_id, replier_id, replied_floor, text, created_at, floor)
@@ -56,19 +56,24 @@
 		(
 		select reply_id 
 		from (select reply_id, replied_floor
-			 from post_replies) as replies1 left join (select reply_id as id, replier_id, floor
-			 							              from post_replies) as replies2
-			 							              on replies1.reply_id = replies2.id 
-			 							              and replies1.replied_floor = replies2.floor
+			 from post_replies) as replies1 
+			 join 
+			 (select reply_id as id, replier_id, floor
+			 from post_replies) as replies2
+			 on 
+			 replies1.replied_floor = replies2.floor
 		where replier_id = #{userId}
 		union all 
 		select reply_id
 		from (select reply_id, post_id 
-			 from post_replies) as replies left join (select post_id, user_id 
-										  			 from posts) as post_table 
-										  			 on replies.post_id = post_table.post_id
-		where user_id = #{userId}
-		)
+			 from post_replies) as replies 
+			 join 
+			 (select post_id, user_id 
+			 from posts) as post_table 
+			 on
+			 replies.post_id = post_table.post_id
+			 where user_id = #{userId}
+			 )
 		order by created_at desc
 		limit #{count}
 	</select>
@@ -80,17 +85,22 @@
 		(
 		select reply_id 
 		from (select reply_id, replied_floor
-			 from post_replies) as replies1 left join (select reply_id as id, replier_id, floor
-			 							              from post_replies) as replies2
-			 							              on replies1.reply_id = replies2.id 
-			 							              and replies1.replied_floor = replies2.floor
+			 from post_replies) as replies1 
+			 join 
+			 (select reply_id as id, replier_id, floor
+			 from post_replies) as replies2
+			 on 
+			 and replies1.replied_floor = replies2.floor
 		where replier_id = #{userId}
 		union all 
 		select reply_id
 		from (select reply_id, post_id 
-			 from post_replies) as replies left join (select post_id, user_id 
-										 			 from posts) as post_table 
-										 			 on replies.post_id = post_table.post_id
+			 from post_replies) as replies 
+			 join 
+			 (select post_id, user_id 
+			 from posts) as post_table 
+			 on
+			 replies.post_id = post_table.post_id
 		where user_id = #{userId}
 		)
 		and created_at &lt; 

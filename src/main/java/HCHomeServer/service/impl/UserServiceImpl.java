@@ -2,11 +2,11 @@ package HCHomeServer.service.impl;
 
 import java.util.List;
 
-import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import HCHomeServer.cache.UnReadCount;
 import HCHomeServer.mapper.PersonInfoMapper;
 import HCHomeServer.mapper.SignRecordMapper;
 import HCHomeServer.mapper.UserApplyMapper;
@@ -28,29 +28,35 @@ public class UserServiceImpl implements UserService {
 	private UserMapper userMapper;
 	@Autowired
 	private PersonInfoMapper personInfoMapper;
-	Logger logger = Logger.getLogger(getClass());
 	@Autowired
 	private UserApplyMapper userApplyMapper;	
 	@Autowired
 	private SignRecordMapper signRecordMapper;
 	
+//	private Logger logger = Logger.getLogger(getClass());
 	
 	@Override
-	@Transactional
+	@Transactional(rollbackFor=Exception.class)
 	public LightUser checkUser(String verificationCode, String openedId, String avatar) {
 		//安全码检验
 		PersonInfo info = personInfoMapper.checkCode(verificationCode);
 		if(info!=null) {
 			//新增用户
-			User user = User.createUser(info, openedId, avatar);
-			userMapper.addUser(user);
+			User user;
+			user = userMapper.getUserByOpenId(openedId);
+			if(user == null) {
+				user = User.createUser(info, openedId, avatar);
+				userMapper.addUser(user);
+			}else {
+				userMapper.updateAvatar(user.getUserId(), avatar);
+			}
 			return LightUser.buildByUser(user, null);
 		}
 		return null;
 	}
 
 	@Override
-	public LightUser login(String openId) {
+	public LightUser login(String openId, String avatar) {
 		//检查用户是否注册
 		User user = userMapper.getUserByOpenId(openId);
 		if(user==null) {
@@ -58,12 +64,25 @@ public class UserServiceImpl implements UserService {
 		}
 		//检查今天是否已经签到
 		SignRecord sign = signRecordMapper.getTodaySignRecord(user.getUserId()); 
+		//头像
+		if(user.getAvatar()==null||!user.getAvatar().equals(avatar)) {
+			user.setAvatar(avatar);
+			(new Thread(new Runnable() {
+				@Override
+				public void run() {
+					updateAvatar(user.getUserId(),avatar);	
+				}
+			})).start();
+		}
 		LightUser lightUser = LightUser.buildByUser(user,sign);
+		
 		if(user.getSchool()==null) {
 			lightUser.setIsFirstLogin(Boolean.TRUE);
 		}else {
 			lightUser.setIsFirstLogin(Boolean.FALSE);
 		}
+		//获取读者未读消息数
+		lightUser.setUnReadCount(UnReadCount.getInstance().getUnRead(user.getUserId()));
 		return lightUser;
 	}
 
@@ -73,7 +92,7 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	@Transactional
+	@Transactional(rollbackFor=Exception.class)
 	public boolean sign(int userId) {
 		//检查今天是否已经签到
 		if(signRecordMapper.getTodaySignRecord(userId)!=null) {

@@ -2,10 +2,6 @@ package HCHomeServer.controller;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +14,8 @@ import HCHomeServer.model.result.ResultData;
 import HCHomeServer.model.result.ScoreRank;
 import HCHomeServer.model.result.UserSearchManager;
 import HCHomeServer.model.result.UserSearchManager.MatchType;
-import HCHomeServer.cache.UnReadCount;
+import HCHomeServer.cache.SessionCache;
+import HCHomeServer.cache.SessionCache.SessionType;
 import HCHomeServer.model.db.User;
 import HCHomeServer.model.db.UserApply;
 import HCHomeServer.model.result.LightUser;
@@ -47,17 +44,14 @@ public class UserController {
 	 * @param request
 	 * @return ResutData
 	 */
-	@SuppressWarnings({"unchecked" })
 	@RequestMapping("/login")
 	@ResponseBody
 	public ResultData login(
 			@RequestParam("jsCode")String jsCode,
-			@RequestParam("avatar")String avatar,
-			HttpSession httpSession) {
+			@RequestParam("avatar")String avatar) {
 		Map<String, Object> data = new HashMap<>();
 		ResultData resultData=null;
-//		HttpSession httpSession = request.getSession();
-		ServletContext application = httpSession.getServletContext();
+
 		try {
 			//向微信服务器申请会话
 			Session session = WeChat.getSession(jsCode);
@@ -65,21 +59,14 @@ public class UserController {
 			if(session==null) {
 				resultData = ResultData.build_fail_result(data, "jsCode不正确", 10004);
 			}else {
-				LightUser user = userService.login(session.getOpenId());
-//				//将微信会话存进session
-//				httpSession.setAttribute("wechat_session", session);
+				LightUser user = userService.login(session.getOpenId(), avatar);
 				//检查用户是否已经注册
 				if(user == null) {
 					LightUserApply userApply = userService.checkApply(session.getOpenId());
 					//检查用户是否正在申请中
 					if(userApply == null) {
-						Map<String, Session> tempSessionMap = (ConcurrentHashMap<String, Session>) application.getAttribute("tempSessionMap");
-						if(tempSessionMap==null) {
-							tempSessionMap = new ConcurrentHashMap<>();
-						}
 						String key = WeChat.getUnionKey(jsCode);
-						tempSessionMap.put(key, session);
-						application.setAttribute("tempSessionMap", tempSessionMap);
+						SessionCache.getInstance().put(key, session,SessionType.TEMP);
 						data.put("emmCode", key);
 						resultData = ResultData.build_fail_result(data, "用户不存在", 10003);
 					}else {
@@ -87,24 +74,8 @@ public class UserController {
 						resultData = ResultData.build_fail_result(data, "申请信息审核中", 10006);
 					}
 				}else {
-					Map<String, Session>userSessionMap = (ConcurrentHashMap<String, Session>) application.getAttribute("userSessionMap");
-					if(userSessionMap==null)userSessionMap = new ConcurrentHashMap<>();
-					userSessionMap.put(String.valueOf(user.getUserId()), session);
-					application.setAttribute("userSessionMap", userSessionMap);
-					if(user.getAvatar()==null||!user.getAvatar().equals(avatar)) {
-						user.setAvatar(avatar);
-						(new Thread(new Runnable() {
-							@Override
-							public void run() {
-								userService.updateAvatar(user.getUserId(),avatar);	
-							}
-						})).start();
-					}
-					//获取读者未读消息数
-					int unReadCount = UnReadCount.getInstance().getUnRead(user.getUserId());
-					user.setUnReadCount(unReadCount);
-					data.put("user", user);
-					
+					SessionCache.getInstance().put(String.valueOf(user.getUserId()), session, SessionType.LOGINED);
+					data.put("user", user);	
 					resultData = ResultData.build_success_result(data);
 				}
 			}
@@ -123,37 +94,29 @@ public class UserController {
 	 * @param request
 	 * @return
 	 */
-	@SuppressWarnings({"unchecked" })
 	@RequestMapping("/register")
 	@ResponseBody
 	public ResultData register(
 			@RequestParam("emmCode")String emmCode,
 			@RequestParam("verificationCode")String verificationCode,
-			@RequestParam("avatar")String avatar,
-			HttpSession httpSession) {
-		ServletContext application = httpSession.getServletContext();
+			@RequestParam("avatar")String avatar) {
 		Map<String, Object> data = new HashMap<>();
 		ResultData resultData = null;
 		try {
-			Map<String, Session>tempSessionMap = (ConcurrentHashMap<String, Session>)application.getAttribute("tempSessionMap");
 			//检查是否已经向微信服务器申请会话
-			if(tempSessionMap==null) {
+			Session session = SessionCache.getInstance().get(emmCode, SessionType.TEMP);
+			if(session == null) {
 				resultData = ResultData.build_fail_result(data, "与微信会话断开中", 10004);
-			}else {
-				Session session = tempSessionMap.get(emmCode);
-				if(session == null) {
-					resultData = ResultData.build_fail_result(data, "与微信会话断开中", 10004);
-				}else{
-					LightUser user = userService.checkUser(verificationCode, session.getOpenId(),avatar);
-					//检查检验码是否正确
-					if(user != null) {
-						data.put("user", user);
-						resultData = ResultData.build_success_result(data);
-					}else {
-						resultData = ResultData.build_fail_result(data, "验证码不存在", 10003);
-					}
-				}		
-			}
+			}else{
+				LightUser user = userService.checkUser(verificationCode, session.getOpenId(), avatar);
+				//检查检验码是否正确
+				if(user != null) {
+					data.put("user", user);
+					resultData = ResultData.build_success_result(data);
+				}else {
+					resultData = ResultData.build_fail_result(data, "验证码不存在", 10003);
+				}
+			}		
 			return resultData;
 		}catch (Exception e) {
 			e.printStackTrace();
@@ -169,7 +132,6 @@ public class UserController {
 	 * @param request
 	 * @return
 	 */
-	@SuppressWarnings({"unchecked" })
 	@RequestMapping("/apply")
 	@ResponseBody
 	public ResultData apply(
@@ -177,26 +139,21 @@ public class UserController {
 			@RequestParam("name")String name,
 			@RequestParam("message")String message,
 			@RequestParam("emmCode")String emmCode,
-			@RequestParam("avatar")String avatar,
-			HttpSession httpSession){
-		ServletContext application = httpSession.getServletContext();
+			@RequestParam("avatar")String avatar){
 		Map<String, Object> data = new HashMap<>();
 		ResultData resultData = null;
 		try {
-			Map<String, Session>tempSessionMap = (ConcurrentHashMap<String, Session>)application.getAttribute("tempSessionMap");
+			
 			//检查是否已经向微信服务器申请会话
-			if(tempSessionMap==null) {
+			if(SessionCache.getInstance().containsKey(emmCode, SessionType.TEMP)) {
 				resultData = ResultData.build_fail_result(data, "与微信会话断开中", 10004);
-			}else {
-				Session session = tempSessionMap.get(emmCode);
-				if(session == null) {
-					resultData = ResultData.build_fail_result(data, "与微信会话断开中", 10004);
-				}else{
-					UserApply userApply = new UserApply(term, name, message, session.getOpenId(),avatar);
-					userService.addUserApply(userApply);
-					resultData = ResultData.build_success_result(data);
-				}
+			}else{
+				UserApply userApply = new UserApply(term, name, message, 
+						SessionCache.getInstance().get(emmCode, SessionType.TEMP).getOpenId(), avatar);
+				userService.addUserApply(userApply);
+				resultData = ResultData.build_success_result(data);
 			}
+			
 			return resultData;
 		}catch (Exception e) {
 			e.printStackTrace();
@@ -233,27 +190,18 @@ public class UserController {
 	/**
 	 * 注销接口，用于清除application中保存的数据
 	 * @param userId
-	 * @param httpSession
 	 * @return
 	 */
-	@SuppressWarnings({ "unchecked" })
 	@RequestMapping(value="/logout")
 	@ResponseBody
 	public ResultData logout(
-			@RequestParam("userId")String userId,
-			HttpSession httpSession) {
-		ServletContext application = httpSession.getServletContext();
+			@RequestParam("userId")String userId) {
 		Map<String, Object> data = new HashMap<>();
 		ResultData resultData = null;
 		try {
-			Map<String, Session>userSessionMap = (ConcurrentHashMap<String, Session>)application.getAttribute("userSessionMap");
-			if(userSessionMap==null) {
-				resultData = ResultData.build_success_result(data);
-			}else {
-				if(userSessionMap.containsKey("userId"))userSessionMap.remove(userId);
-				application.setAttribute("userSessionMap", userSessionMap);
-				resultData = ResultData.build_success_result(data);
-			}
+			SessionCache sessionCache = SessionCache.getInstance();
+			if(sessionCache.containsKey(userId, SessionType.LOGINED))sessionCache.remove(userId, SessionType.LOGINED);
+			resultData = ResultData.build_success_result(data);
 			return resultData;
 		}catch (Exception e) {
 			e.printStackTrace();

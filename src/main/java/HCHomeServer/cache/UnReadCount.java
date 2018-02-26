@@ -11,24 +11,26 @@ import java.util.concurrent.ConcurrentSkipListMap;
 import com.alibaba.fastjson.JSONObject;
 
 /**
- * 一个用户未读消息数的管理器，采用内部类方式实现的单例模式来保证线程安全和懒加载机制
+ * 一个用户未读消息数的管理器，采用内部类方式实现的单例模式来保证线程安全和懒加载机制。
+ * 在项目加载的时候会根据SAVEPATH加载数据，项目中止时，会将数据保存到SAVEPATH路径下。
  * @author cj
  */
 public class UnReadCount implements Serializable{
-
+	
 	private static final long serialVersionUID = 6945883647400709800L;
 	private static final String webRoot = System.getProperty("webRoot");
-	
+	private static final String SAVEDIRPATH =  webRoot.substring(0, webRoot.length()-21)+"webcache/HCHomeServer";
+	private static final String SAVEPATH = SAVEDIRPATH + "/UnReadCount.txt";
 	private UnReadCount() {
 		unReadCountMap = new ConcurrentSkipListMap<>();
 		this.loadMap();
 		
 	}
 	public static UnReadCount getInstance() {
-		return UnReadCountHolder.unReadCount;
+		return HolderOnUnReadCount.unReadCount;
 	}
 	//内部类
-	private static class UnReadCountHolder{
+	private static class HolderOnUnReadCount{
 		public static UnReadCount unReadCount = new UnReadCount();
 	}
 	
@@ -61,19 +63,17 @@ public class UnReadCount implements Serializable{
 	 */
 	public void saveMap() {
 		if(unReadCountMap.isEmpty())return;
-		String saveParentPath =  webRoot.substring(0, webRoot.length()-21)+"webcache/HCHomeServer";
-		String savePath = saveParentPath+"/UnReadCount.txt";
-		System.out.println(savePath);
+		System.out.println(SAVEPATH);
 		PrintStream printStream = null;
 		try {
-			File file = new File(savePath);
+			File file = new File(SAVEPATH);
 			if(file.exists()&&file.isFile()&&file.canWrite()) {							
 				printStream = new PrintStream(new FileOutputStream(file));
 				printStream.println(JSONObject.toJSON(unReadCountMap));
 				System.out.println("saveMap:"+JSONObject.toJSONString(unReadCountMap));
 			}else {
 				file.deleteOnExit();
-				new File(saveParentPath).mkdirs();
+				new File(SAVEDIRPATH).mkdirs();
 				if(file.createNewFile()) {
 					printStream = new PrintStream(new FileOutputStream(file));
 					printStream.println(JSONObject.toJSONString(unReadCountMap));
@@ -93,13 +93,12 @@ public class UnReadCount implements Serializable{
 	@SuppressWarnings("unchecked")
 	public void loadMap(){
 		if(!unReadCountMap.isEmpty())return;
-		String savePath = webRoot.substring(0, webRoot.length()-21)+"webcache/HCHomeServer/UnReadCount.txt";
-		System.out.println(savePath);
+		System.out.println(SAVEPATH);
 		FileInputStream  fileInputStream = null;
 		try {
-			File file = new File(savePath);
+			File file = new File(SAVEPATH);
 			if(file.exists()&&file.isFile()) {
-				fileInputStream = new FileInputStream(savePath);
+				fileInputStream = new FileInputStream(SAVEPATH);
 				byte[] fileString = new byte[(int)file.length()+1];
 				fileInputStream.read(fileString);
 				String mapJson = new String(fileString);

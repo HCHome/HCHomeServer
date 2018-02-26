@@ -16,7 +16,7 @@ public interface UserService {
 	//检查验证码是否存在，若存在则新增用户
 	public LightUser checkUser(String verificationCode, String openedId, String avatar);
 	//登录检验
-	public LightUser login(String openId);
+	public LightUser login(String openId, String avatar);
 	//新增申请
 	public void addUserApply(UserApply userApply);
 	//签到

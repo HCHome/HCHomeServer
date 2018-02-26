@@ -26,7 +26,7 @@ public interface PostService {
 	//获取置顶的帖子列表
 	public ArrayList<PostInfo> getTopPosts();
 	//新增回复
-	public ReplyInfo addReply(PostReply create);
+	public ReplyInfo addReply(PostReply create)throws Exception;
 	//删除回复
 	public void deleteReply(int replyId);
 	//获取一个帖子的回复信息

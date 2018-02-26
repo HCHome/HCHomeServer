@@ -63,7 +63,7 @@ public class PostInfo implements Serializable {
 		postInfo.setText(post.getText());
 		postInfo.setCreatedDate(post.getCreatedDate());
 		postInfo.setPictureCount(post.getPictureCount());
-		postInfo.setPictureCount(repliesCount);
+		postInfo.setRepliesCount(repliesCount);
 		postInfo.setUpdatedDate(post.getLastUpdate());
 		postInfo.setPictureUrl(pictureUrls);
 		postInfo.setIs_top(null);
@@ -88,7 +88,7 @@ public class PostInfo implements Serializable {
 		postInfo.setText(post.getText());
 		postInfo.setCreatedDate(post.getCreatedDate());
 		postInfo.setPictureCount(post.getPictureCount());
-		postInfo.setPictureCount(repliesCount);
+		postInfo.setRepliesCount(repliesCount);
 		postInfo.setUpdatedDate(post.getLastUpdate());
 		postInfo.setPictureUrl(pictureUrls);
 		postInfo.setIs_top(post.getIsTop());

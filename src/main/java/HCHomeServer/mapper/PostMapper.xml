@@ -63,7 +63,7 @@
 	</select>
 	<!-- 有新的回复 -->
 	<update id="updateReply">
-		update posts set current_floor = current_floor+1 and updated_at = now()
+		update posts set current_floor = current_floor+1,updated_at = now()
 		where post_id = #{postId}
 	</update>
 	<!-- 获取用户发布的post -->

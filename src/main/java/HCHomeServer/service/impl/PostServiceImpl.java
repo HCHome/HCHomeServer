@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,13 +37,16 @@ public class PostServiceImpl implements PostService {
 	private PostReplyMapper postReplyMapper;
 	@Autowired
 	private UserMapper userMapper;
+	
+	private Logger logger = Logger.getLogger(getClass());
+	
 	@Override
 	public void addPost(Post post) {
 		postMapper.addPost(post);
 	}
 
 	@Override
-	@Transactional
+	@Transactional(rollbackFor=Exception.class)
 	public PostPicture addPostPicture(MultipartFile postPictureEntity, int postId, int order) throws Exception {
 		//生成文件名
 		String originalFilename = postPictureEntity.getOriginalFilename();
@@ -70,19 +74,22 @@ public class PostServiceImpl implements PostService {
 		//删除帖子记录
 		postMapper.deletePostByPostId(postId);
 		//删除帖子在对象服务器上的图片
-		new Thread(new Runnable() {
-			@Override
-			public void run() {
-				Iterator<String>iterator = urlList.iterator();
-				while(iterator.hasNext()) {
-					CosTool.deleteFoodPicture(iterator.next().replaceFirst(CosTool.COS_BASE_URL, ""));
+		try {
+			new Thread(new Runnable() {
+				@Override
+				public void run() {
+					Iterator<String>iterator = urlList.iterator();
+					while(iterator.hasNext()) {
+						CosTool.deleteFoodPicture(iterator.next().replaceFirst(CosTool.COS_BASE_URL, ""));
+					}
 				}
-			}
-		}).run();
+			}).run();
+		}catch (Exception e) {
+			logger.info("remove picture exception");
+		}
 	}
 
 	@Override
-	@Transactional
 	public ArrayList<PostInfo> getPostListForAll(int lastPostId) {
 		//获取帖子记录列表
 		List<Post> posts = null;
@@ -105,7 +112,6 @@ public class PostServiceImpl implements PostService {
 	}
 
 	@Override
-	@Transactional
 	public ArrayList<PostInfo> getPostListForCategory(String category, int lastPostId) {
 		//获取帖子记录列表
 		List<Post> posts = null;
@@ -128,7 +134,6 @@ public class PostServiceImpl implements PostService {
 	}
 
 	@Override
-	@Transactional
 	public ArrayList<PostInfo> getTopPosts() {
 		//获取帖子记录列表
 		List<Post> posts = postMapper.getTopPosts();
@@ -146,7 +151,6 @@ public class PostServiceImpl implements PostService {
 	}
 
 	@Override
-	@Transactional
 	public List<ReplyInfo> getReplyListByPostId(int postId, int lastReplyId) {
 		//获取回复列表
 		List<PostReply> postReplies;
@@ -168,8 +172,8 @@ public class PostServiceImpl implements PostService {
 	}
 
 	@Override
-	@Transactional
-	public ReplyInfo addReply(PostReply postReply) {
+	@Transactional(rollbackFor=Exception.class)
+	public ReplyInfo addReply(PostReply postReply) throws Exception {
 		//新增回复记录
 		postReplyMapper.addReply(postReply);
 		//重新抓取回复记录，避免楼层数为0
@@ -177,6 +181,7 @@ public class PostServiceImpl implements PostService {
 		//更新帖子楼层数和日期
 		postMapper.updateReply(postReply.getPostId());
 		return ReplyInfo.build(postReply, userMapper.getUserByUserId(postReply.getReplierId()));
+
 	}
 
 	@Override
