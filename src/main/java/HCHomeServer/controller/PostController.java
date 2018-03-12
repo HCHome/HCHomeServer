@@ -341,4 +341,23 @@ public class PostController {
 		}	
 	}
 	
+	@RequestMapping("/searchPosts")
+	@ResponseBody
+	public ResultData searchPosts(
+			@RequestParam("searchWord")String searchWord,
+			@RequestParam(value = "category", required = false)String category,
+			@RequestParam(value = "lastPostId", required = false, defaultValue="0")int lastPostId) {
+		Map<String, Object> data = new HashMap<>();
+		ResultData resultData = null;
+		try {
+			List<PostInfo> posts = postService.searchPosts(searchWord, category, lastPostId);
+			data.put("postList", posts);
+			resultData = ResultData.build_success_result(data);
+			return resultData;
+		}catch (Exception e) {
+			e.printStackTrace();
+			resultData = ResultData.build_fail_result(data, "异常", 10002);
+			return resultData;
+		}	
+	}
 }

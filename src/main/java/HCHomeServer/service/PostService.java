@@ -37,5 +37,7 @@ public interface PostService {
 	public PostInfo getPostInfoByPostId(int postId);
 	//获取用户收到的回复列表
 	public List<ReceivedReply> getReplyListByUserId(int userId, int lastReplyId);
+	//在帖子标题或者正文中搜索帖子
+	public List<PostInfo> searchPosts(String searchWord, String category, int lastPostId);
 
 }

@@ -28,4 +28,6 @@ public interface PostMapper {
 
 	public Post getPostByPostId(@Param("postId")int postId);
 
+	public List<Post> searchPosts(@Param("searchWord")String searchWord, @Param("category")String category, @Param("basePostId")int basePostId);
+
 }

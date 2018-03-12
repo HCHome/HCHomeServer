@@ -240,5 +240,22 @@ public class PostServiceImpl implements PostService {
 		return receivedReplies;
 	}
 
+	@Override
+	public List<PostInfo> searchPosts(String searchWord, String category, int lastPostId) {
+		//获取帖子记录列表
+		List<Post> posts = postMapper.searchPosts(searchWord, category, lastPostId);
+		//抓取相关返回信息
+		Iterator<Post> iterator = posts.iterator();
+		ArrayList<PostInfo> postInfos = new ArrayList<>();
+		while(iterator.hasNext()) {
+			Post temp = iterator.next();
+			User user = userMapper.getUserByUserId(temp.getUserId());
+			int repliesCount = postReplyMapper.getRepliesCount(temp.getPostId());
+			List<String> pictureUrls = postPictureMapper.getPictureUrlArrayByPostId(temp.getPostId());
+			postInfos.add(PostInfo.build(temp, user, pictureUrls,repliesCount));
+		}
+		return postInfos;
+	}
+
 
 }
